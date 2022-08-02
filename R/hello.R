@@ -1,6 +1,6 @@
 #' Hello world
 #'
-#' @param dt data frame
+#' @param dt A data frame
 #'
 #' @import data.table
 #' @return A print
