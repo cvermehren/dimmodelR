@@ -2,9 +2,8 @@ Package: dimmodelR
 Type: Package
 Title: Tools For Creating Dimensional Models
 Version: 0.1.0
-Author: person("Christian", "Vermehren", email = "cv@cantab.net", 
+Authors@R: person("Christian", "Vermehren", email = "cv@cantab.net", 
     role = c("aut", "cre"))
-Maintainer: The package maintainer <yourself@somewhere.net>
 Description: Provides functions for converting flat tables into a dimensional 
     model (i.e. a relational model with dimensions and fact tables).
 License: MIT + file LICENSE
