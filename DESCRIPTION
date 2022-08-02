@@ -1,6 +1,6 @@
 Package: dimmodelR
 Type: Package
-Title: Tools For Creating Dimensional Models
+Title: Tools for Creating Dimensional Models
 Version: 0.1.0
 Authors@R: person("Christian", "Vermehren", email = "cv@cantab.net", 
     role = c("aut", "cre"))
@@ -13,4 +13,4 @@ RoxygenNote: 7.2.1
 Imports: 
     data.table
 Depends: 
-    R (>= 4.2.1)
+    R (>= 4.2.0)
