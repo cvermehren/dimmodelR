@@ -1,13 +1,20 @@
+# fact=new_fact
+# dim=old_dim
+
+# Internal function
+dm_check_dim_match <- function(dim, fact) {
+
+  shared_cols <- intersect(names(fact), names(dim))
+  no_shared_cols <- length(shared_cols) == 0
+  not_unique <- any(duplicated(dim, by = shared_cols))
+
+  return(no_shared_cols | not_unique)
+}
+
 
 dm_model_create <- function(flat_table,
                             dimension_columns,
-                            # fact_name = NULL,
                             dm = NULL) {
-
-  # if(is.null(fact_name)) stop(
-  #   "The argument fact_name must not be NULL. Please provide a name for the fact table.",
-  #   call. = FALSE
-  #   )
 
   stopifnot(is.data.frame(flat_table))
   stopifnot(is.list(dimension_columns))
@@ -76,8 +83,6 @@ dm_model_create <- function(flat_table,
 
     dm$fact <- flat_table
 
-    # dm$fact <- list(flat_table)
-
   } else {
 
     dm <- structure(
@@ -89,8 +94,6 @@ dm_model_create <- function(flat_table,
       )
 
     dm$fact <- flat_table
-
-    #dm$fact <- list(flat_table)
 
   }
 

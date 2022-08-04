@@ -28,21 +28,12 @@ dm_refresh_dim <- function(old_dim, new_fact) {
   shared_cols <- intersect(names(old_dim), names(new_fact))
 
   # Check if old_dim is unique with only shared_cols
-  no_shared_cols <- length(shared_cols) == 0
-  not_unique <- any(duplicated(old_dim, by = shared_cols))
+  no_match <- dm_check_dim_match(old_dim, new_fact)
 
-  if (no_shared_cols | not_unique) stop(
+  if (no_match) stop(
     "The dimension key, ", key_name, ", cannot be inserted into new_fact.\n",
     "  Please ensure new_fact shares enough columns with old_dim to form a unique key."
   )
-
-  # # Check if old_dim is unique with only shared_cols
-  # is_not_unique <- any(duplicated(old_dim, by = shared_cols))
-  #
-  # if(is_not_unique) stop(
-  #   "The dimension key, ", key_name, ", cannot be inserted into new_fact.\n",
-  #   "  Please ensure new_fact shares enough columns with old_dim to form a unique key."
-  #   )
 
   # Reconstruct old_dim (remove post-calculated cols)
   old_cols <- append(key_name, shared_cols)
@@ -153,12 +144,17 @@ dm_refresh_model <- function(dim_list, new_fact, dm = NULL, fact_name = NULL) {
 
     old_dim <- dim_list[[i]]
 
-    # Check if old_dim is unique with only shared_cols
-    shared_cols <- intersect(names(new_fact), names(old_dim))
-    no_shared_cols <- length(shared_cols) == 0
-    not_unique <- any(duplicated(old_dim, by = shared_cols))
+    # # Check if old_dim is unique with only shared_cols
+    # shared_cols <- intersect(names(new_fact), names(old_dim))
+    # no_shared_cols <- length(shared_cols) == 0
+    # not_unique <- any(duplicated(old_dim, by = shared_cols))
 
-    if (no_shared_cols | not_unique) {
+    # Check if old_dim is unique with only shared_cols
+    no_match <- dm_check_dim_match(old_dim, new_fact)
+
+    #if (no_shared_cols | not_unique)
+
+    if (no_match) {
 
       message(dimension_names[i], " does not match new_fact; skipping the dimension...")
 
@@ -176,6 +172,9 @@ dm_refresh_model <- function(dim_list, new_fact, dm = NULL, fact_name = NULL) {
     new_fact <- refreshed_schema$fact
 
   }
+
+
+
 
 
   if(!is.null(dm)) {
