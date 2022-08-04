@@ -1,4 +1,13 @@
-dm_model_create <- function(flat_table, dimension_columns) {
+
+dm_model_create <- function(flat_table,
+                            dimension_columns,
+                            # fact_name = NULL,
+                            dm = NULL) {
+
+  # if(is.null(fact_name)) stop(
+  #   "The argument fact_name must not be NULL. Please provide a name for the fact table.",
+  #   call. = FALSE
+  #   )
 
   stopifnot(is.data.frame(flat_table))
   stopifnot(is.list(dimension_columns))
@@ -17,7 +26,7 @@ dm_model_create <- function(flat_table, dimension_columns) {
     flat_table[, (character_cols) := lapply(.SD, as.character), .SDcols = character_cols]
   }
 
-  #i=2
+  #i=1
   for(i in seq_along(dimension_columns)) {
 
     dim_name <- names(dimension_columns[i])
@@ -26,7 +35,7 @@ dm_model_create <- function(flat_table, dimension_columns) {
     key_name <- paste0(dim_name, "_key")
     key_name <- gsub("^dim_", "", key_name)
 
-    dim <- unique(flat_table[, dim_cols, with = FALSE])
+    dim <- unique(flat_table[, .SD, .SDcols = dim_cols])
 
     # Replace NAs with "n/a"
     dim[, (dim_cols) := replace(.SD, is.na(.SD), "n/a"), .SDcols = dim_cols]
@@ -35,12 +44,12 @@ dm_model_create <- function(flat_table, dimension_columns) {
     # Insert surrogate key
     dim[, (key_name) := as.double(1:nrow(dim)) ]
 
-    # Reorcer columns
+    # Reorder columns
     setcolorder(dim, c(key_name, setdiff(names(dim), key_name)))
 
-    stopifnot(min(dim[[1]]) == 1)
-    stopifnot(max(dim[[1]]) == nrow(dim))
-    stopifnot(length(unique(dim[[1]])) == nrow(dim))
+    stopifnot(min(dim[,get(key_name)]) == 1)
+    stopifnot(max(dim[,get(key_name)]) == nrow(dim))
+    stopifnot(length(unique(dim[,get(key_name)])) == nrow(dim))
 
     # Add dim to dim_list
     if(!exists("dim_list")) dim_list <- list()
@@ -58,8 +67,33 @@ dm_model_create <- function(flat_table, dimension_columns) {
 
   data.table::setDF(flat_table)
 
-  res <- list(fact = flat_table, dimensions = dim_list)
+  if(!is.null(dm)) {
 
-  return(res)
+    for(i in seq_along(dim_list)) {
+      name <- names(dim_list)[i]
+      dm$dimensions[[name]] <- dim_list[[i]]
+    }
+
+    dm$fact <- flat_table
+
+    # dm$fact <- list(flat_table)
+
+  } else {
+
+    dm <- structure(
+      list(
+        dimensions = dim_list,
+        fact = NULL
+        ),
+      class = "dm_dimension_model"
+      )
+
+    dm$fact <- flat_table
+
+    #dm$fact <- list(flat_table)
+
+  }
+
+  return(dm)
 
 }

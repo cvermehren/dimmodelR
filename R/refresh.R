@@ -28,21 +28,29 @@ dm_refresh_dim <- function(old_dim, new_fact) {
   shared_cols <- intersect(names(old_dim), names(new_fact))
 
   # Check if old_dim is unique with only shared_cols
-  old_dim_shared <- unique(old_dim[, shared_cols, with = FALSE])
-  is_unique <- nrow(old_dim_shared) == nrow(old_dim)
+  no_shared_cols <- length(shared_cols) == 0
+  not_unique <- any(duplicated(old_dim, by = shared_cols))
 
-  if(!is_unique) stop(
+  if (no_shared_cols | not_unique) stop(
     "The dimension key, ", key_name, ", cannot be inserted into new_fact.\n",
     "  Please ensure new_fact shares enough columns with old_dim to form a unique key."
-    )
+  )
+
+  # # Check if old_dim is unique with only shared_cols
+  # is_not_unique <- any(duplicated(old_dim, by = shared_cols))
+  #
+  # if(is_not_unique) stop(
+  #   "The dimension key, ", key_name, ", cannot be inserted into new_fact.\n",
+  #   "  Please ensure new_fact shares enough columns with old_dim to form a unique key."
+  #   )
 
   # Reconstruct old_dim (remove post-calculated cols)
   old_cols <- append(key_name, shared_cols)
-  old_dim <- old_dim[, old_cols, with = FALSE]
+  old_dim <- old_dim[, .SD, .SDcols = old_cols]
 
   # Define new dim
   new_fact[, (shared_cols) := lapply(.SD, as.character), .SDcols = shared_cols]
-  dim <- unique(new_fact[, shared_cols, with = FALSE])
+  dim <- unique(new_fact[, .SD, .SDcols = shared_cols])
 
   # Replace NAs with n/a in new dim
   dim[, (shared_cols) := replace(.SD, is.na(.SD), "n/a"), .SDcols = shared_cols]
@@ -71,10 +79,10 @@ dm_refresh_dim <- function(old_dim, new_fact) {
     # Combine new and old dim
     dim <- rbindlist(list(old_dim, dim), use.names = T)
 
-    stopifnot(min(as.numeric(dim[[1]])) == 1)
-    stopifnot(max(as.numeric(dim[[1]])) == nrow(dim))
-    stopifnot(length(unique(dim[[1]])) == nrow(dim))
-    stopifnot(length(unique(dim[[1]])) == nrow(dim[, -c(key_name), with = FALSE]))
+    stopifnot(min(dim[,get(key_name)]) == 1)
+    stopifnot(max(dim[,get(key_name)]) == nrow(dim))
+    stopifnot(length(dim[,get(key_name)]) == nrow(dim))
+    stopifnot(length(dim[,get(key_name)]) == nrow(dim[, -c(key_name), with = FALSE]))
     stopifnot(nrow(unique(old_dim[, -c(key_name), with = FALSE])) == nrow(unique(old_dim)))
     stopifnot(nrow(unique(dim[, -c(key_name), with = FALSE])) == nrow(unique(dim)))
 
@@ -130,7 +138,7 @@ dm_refresh_dim <- function(old_dim, new_fact) {
 # }
 
 
-dm_refresh_model <- function(dim_list, new_fact) {
+dm_refresh_model <- function(dim_list, new_fact, dm = NULL, fact_name = NULL) {
 
   # dim_list must be a list of old dimensions (e.g. from dm_model_create())
   # dimension_names must be a vector of names(dim_list)
@@ -143,12 +151,20 @@ dm_refresh_model <- function(dim_list, new_fact) {
 
   for (i in seq_along(dim_list)) {
 
-    # Skip dims that are not in the fact table
-    new_fact_cols <- names(new_fact)
-    dim_cols <- names(dim_list[[i]])
-    dim_is_not_in_fact <- length(intersect(new_fact_cols, dim_cols)) == 0
+    old_dim <- dim_list[[i]]
 
-    if (dim_is_not_in_fact) { next }
+    # Check if old_dim is unique with only shared_cols
+    shared_cols <- intersect(names(new_fact), names(old_dim))
+    no_shared_cols <- length(shared_cols) == 0
+    not_unique <- any(duplicated(old_dim, by = shared_cols))
+
+    if (no_shared_cols | not_unique) {
+
+      message(dimension_names[i], " does not match new_fact; skipping the dimension...")
+
+      next
+
+      }
 
     # Refresh using the internal function
     refreshed_schema <- dm_refresh_dim(old_dim = dim_list[[i]], new_fact = new_fact)
@@ -161,6 +177,34 @@ dm_refresh_model <- function(dim_list, new_fact) {
 
   }
 
-  res <- list(dim_list = dim_ls, fact = new_fact)
-  return(res)
+
+  if(!is.null(dm)) {
+
+    dm$fact <- NULL
+
+    for(i in seq_along(dim_ls)) {
+      name <- names(dim_ls)[i]
+      dm$dimensions[[name]] <- dim_ls[[i]]
+    }
+
+  } else {
+
+    dm <- structure(
+      list(dimensions = dim_ls),
+      class = "dm_dimension_model"
+      )
+    }
+
+  if(is.null(fact_name)) {
+
+    dm$fact <- new_fact
+
+    } else {
+
+      dm$fact_tables[[fact_name]] <- new_fact
+
+      }
+
+  # res <- list(dim_list = dim_ls, fact = new_fact)
+  return(dm)
 }
