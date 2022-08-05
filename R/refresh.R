@@ -2,9 +2,8 @@
 #'
 #' This is a description.
 #'
-#' @param dim_list a list of old dimensions (e.g. from dm_model_create())
-#' @param new_fact A fact table
 #' @param dm A model object
+#' @param new_fact A fact table
 #' @param fact_name The name of the fact table
 #'
 #' @import data.table
@@ -19,13 +18,23 @@
 #'
 #'
 #' }
-dm_model_refresh <- function(dim_list, new_fact, dm = NULL, fact_name = NULL) {
+dm_model_refresh <- function(dm, new_fact, fact_name = NULL) {
 
-  has_fct_prefix <- startsWith(fact_name, "fct_")
-
-  if(!has_fct_prefix) stop(
-    "The name of fact tables (passed to `fact_name`) must start with 'fct_'.\n"
+  if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
+    "dm must be a `dm_model` object, i.e. an object returned by
+    `dm_model_create` or `dm_model_refresh`.\n"
   )
+
+  if(!is.null(fact_name)) {
+
+    has_fct_prefix <- startsWith(fact_name, "fct_")
+
+    if(!has_fct_prefix) stop(
+      "The name of fact tables (passed to `fact_name`) must start with 'fct_'.\n"
+      )
+    }
+
+  dim_list <- dm$dimensions
 
   dimension_names <- names(dim_list)
 

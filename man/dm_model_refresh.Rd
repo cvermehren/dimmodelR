@@ -4,14 +4,12 @@
 \alias{dm_model_refresh}
 \title{Refresh a dimension}
 \usage{
-dm_model_refresh(dim_list, new_fact, dm = NULL, fact_name = NULL)
+dm_model_refresh(dm, new_fact, fact_name = NULL)
 }
 \arguments{
-\item{dim_list}{a list of old dimensions (e.g. from dm_model_create())}
+\item{dm}{A model object}
 
 \item{new_fact}{A fact table}
-
-\item{dm}{A model object}
 
 \item{fact_name}{The name of the fact table}
 }
