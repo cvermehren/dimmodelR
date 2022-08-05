@@ -1,25 +1,70 @@
-# fact=new_fact
-# dim=old_dim
-
-# Internal function
-dm_check_dim_match <- function(dim, fact) {
-
-  shared_cols <- intersect(names(fact), names(dim))
-  no_shared_cols <- length(shared_cols) == 0
-  not_unique <- any(duplicated(dim, by = shared_cols))
-
-  return(no_shared_cols | not_unique)
-}
-
-
+#' Create a dimensional model
+#'
+#' This is a description.
+#'
+#' @param flat_table The data frame from which the dimensional model should be
+#'   created.
+#' @param dimension_columns A named list with vectors of column names from
+#'   `flat_table` each of which should form a dimension table.
+#' @param dm A `dm_model` object, i.e. an object returned by `dm_model_create`
+#'   or `dm_model_refresh`.
+#' @param return_facts Should facts be returned?
+#'
+#' @import data.table
+#' @return A `dm_model` object containing a list of dimension tables with primary
+#'   keys pointing to the rows of `flat_table`.
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' dm_model_create(flat_table, dimension_columns)
+#'
+#'
+#' }
 dm_model_create <- function(flat_table,
                             dimension_columns,
-                            dm = NULL) {
+                            dm = NULL,
+                            return_facts = FALSE) {
 
-  stopifnot(is.data.frame(flat_table))
-  stopifnot(is.list(dimension_columns))
+  if(!is.data.frame(flat_table)) stop(
+    "flat_table must be a data.frame!\n"
+  )
+
+  if(!is.list(dimension_columns)) stop(
+    "dimension_columns must be a list object!\n"
+  )
+
+  if(is.null(names(dimension_columns))) stop(
+    "dimension_columns must be a named list, where each element is a vector of
+    `flat_table` column-names that should form a unique dimension.\n"
+    )
+
+  has_dim_prefix <- all(startsWith(names(dimension_columns), "dim_"))
+
+  if(!has_dim_prefix) stop(
+    "All dimension names must start with 'dim_'.\n",
+    "Dimension names are the names of the list passed to `dimension_columns`.\n"
+    )
+
+  has_key_suffix <- any(unlist(lapply(dimension_columns, endsWith, "_key")))
+
+  if(has_key_suffix) stop(
+    "Dimension column names (passed to `dimension_columns`) must not end with
+    '_key'. This column suffix is reserved for the dimension's primary key
+    column.\n"
+    )
+
+  if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
+    "dm must be a `dm_model` object, i.e. an object returned by
+    `dm_model_create` or `dm_model_refresh`.\n"
+    )
 
   data.table::setDT(flat_table)
+
+  # Take sample of flat_table unless it should be returned
+  if(!return_facts) flat_table <- flat_table[1:500]
 
   flat_cols <- names(flat_table)
 
@@ -28,12 +73,13 @@ dm_model_create <- function(flat_table,
 
     character_cols <- dimension_columns[[i]]
 
-    if(!all(character_cols %in% flat_cols)) stop("dimension_columns must be columns of flat_table")
+    if(!all(character_cols %in% flat_cols)) stop(
+      "dimension_columns must be columns of `flat_table`!\n"
+      )
 
     flat_table[, (character_cols) := lapply(.SD, as.character), .SDcols = character_cols]
   }
 
-  #i=1
   for(i in seq_along(dimension_columns)) {
 
     dim_name <- names(dimension_columns[i])
@@ -67,7 +113,11 @@ dm_model_create <- function(flat_table,
     flat_table[, (dim_cols) := NULL]
 
     # Reorder columns & set to df
-    data.table::setcolorder(flat_table, c(key_name, setdiff(names(flat_table), key_name)))
+    data.table::setcolorder(
+      flat_table,
+      c(key_name, setdiff(names(flat_table), key_name))
+      )
+
     data.table::setDF(dim)
 
   }
@@ -79,23 +129,15 @@ dm_model_create <- function(flat_table,
     for(i in seq_along(dim_list)) {
       name <- names(dim_list)[i]
       dm$dimensions[[name]] <- dim_list[[i]]
-    }
-
-    dm$fact <- flat_table
+      }
 
   } else {
 
-    dm <- structure(
-      list(
-        dimensions = dim_list,
-        fact = NULL
-        ),
-      class = "dm_dimension_model"
-      )
+    dm <- structure(list(dimensions = dim_list), class = "dm_model")
 
-    dm$fact <- flat_table
+    }
 
-  }
+  if(return_facts) dm$fact <- flat_table
 
   return(dm)
 
