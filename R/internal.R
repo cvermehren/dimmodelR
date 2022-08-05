@@ -8,7 +8,6 @@ dm_check_dim_match <- function(dim, fact) {
   return(no_shared_cols | not_unique)
 }
 
-
 dm_dim_refresh <- function(old_dim, new_fact) {
 
   setDT(old_dim)
