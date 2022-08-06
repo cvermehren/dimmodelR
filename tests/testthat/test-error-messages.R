@@ -5,7 +5,7 @@ test_that("error when dim columns ends with '_key'", {
 
   dimension_columns <- list(dim_department = c("admit_key", "Dept"), dim_gender = "Gender")
 
-  expect_error(ubc_model <- dm_model_create(flat_table, dimension_columns))
+  expect_error(ubc_model <- dm_model(flat_table, dimension_columns))
 
   })
 
@@ -20,7 +20,7 @@ test_that("error when dim names do not start with 'dim_'", {
     dim_market = c("view_name", "country")
   )
 
-  expect_error(dm_model_create(flat_table, dimension_columns))
+  expect_error(dm_model(flat_table, dimension_columns))
 
 
 })
@@ -38,7 +38,7 @@ test_that("error when only one new_fact col match dm_model", {
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model_create(campaign_metrics, dim_cols)
+  dm_model <- dm_model(campaign_metrics, dim_cols)
 
   old_dim <- dm_model$dimensions$dim_channel
   new_fact <- email_metrics
@@ -59,7 +59,7 @@ test_that("error when no new_fact cols match dm model", {
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model_create(campaign_metrics, dim_cols)
+  dm_model <- dm_model(campaign_metrics, dim_cols)
 
   old_dim <- dm_model$dimensions$dim_channel
   new_fact <- email_metrics

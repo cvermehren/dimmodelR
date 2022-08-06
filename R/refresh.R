@@ -1,30 +1,9 @@
-#' Refresh a dimension
-#'
-#' This is a description.
-#'
-#' @param dm A model object
-#' @param new_fact A fact table
-#' @param fact_name The name of the fact table
-#'
-#' @import data.table
-#' @return A data frame
-#' @export
-#'
-#' @examples
-#'
-#' \dontrun{
-#'
-#' dm_refresh(old_dim, new_fact)
-#'
-#'
-#' }
 dm_refresh_one_fact <- function(dm, new_fact, fact_name) {
 
   if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
     "dm must be a `dm_model` object, i.e. an object returned by
-    `dm_model_create` or `dm_refresh_one_fact`.\n"
+    `dm_model` or `dm_refresh_one_fact`.\n"
   )
-
 
   has_fct_prefix <- startsWith(fact_name, "fct_")
 
@@ -84,7 +63,25 @@ dm_refresh_one_fact <- function(dm, new_fact, fact_name) {
   return(dm)
 }
 
-
+#' Refresh a dimension
+#'
+#' This is a description.
+#'
+#' @param dm A model object
+#' @param new_fact_list A fact table
+#'
+#' @import data.table
+#' @return A data frame
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' dm_refresh(old_dim, new_fact)
+#'
+#'
+#' }
 dm_refresh <- function(dm, new_fact_list) {
 
   fact_names <- names(new_fact_list)
@@ -100,22 +97,62 @@ dm_refresh <- function(dm, new_fact_list) {
   return(dm)
 }
 
+#' Refresh a dimension
+#'
+#' This is a description.
+#'
+#' @param dm A model object
+#' @param path A fact table
+#' @param partitioning A fact table2
+#'
+#' @import data.table
+#' @return A data frame
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' dm_save(old_dim, new_fact)
+#'
+#'
+#' }
+dm_save <- function(dm, path, partitioning = NULL) {
 
+  if(dir.exists(path)) stop("The directory '", path, "' already exists.")
 
+  # Save dimensions (no partitioning)
+  dim_names <- names(dm$dimensions)
 
+  for (i in seq_along(dm$dimensions)) {
+    dimpath <- file.path(path, "dimensions")
+    dir.create(dimpath, recursive = TRUE, showWarnings = FALSE)
+    filename <- file.path(dimpath, paste0(dim_names[i], ".parquet"))
+    arrow::write_parquet(dm$dimensions[[i]], filename)
+  }
 
-# dm_refresh_model <- function(dimensions, dimension_names, new_fact) {
-#
-#   dim_ls <- list()
-#
-#   for (i in seq_along(dimensions)) {
-#
-#     refreshed_schema <- dm_dim_refresh(old_dim = dimensions[[i]], new_fact = new_fact)
-#     dim_ls[[dimension_names[i]]] <- refreshed_schema$dimension
-#     new_fact <- refreshed_schema$fact
-#
-#   }
-#
-#   res <- list(dimensions = dim_ls, fact = new_fact)
-#   return(res)
-# }
+  # Save fact tables with partitioning option
+  fct_names <- names(dm$fact_tables)
+
+  for (i in seq_along(dm$fact_tables)) {
+
+    fctpath <- file.path(path, "fact_tables")
+
+    if(is.null(partitioning)) {
+      dir.create(fctpath, recursive = TRUE, showWarnings = FALSE)
+      filename <- file.path(fctpath, paste0(fct_names[i], ".parquet"))
+      arrow::write_parquet(dm$fact_tables[[i]], filename)
+
+    } else {
+
+      fctpath <- file.path(fctpath, fct_names[i])
+      dir.create(fctpath, recursive = TRUE, showWarnings = FALSE)
+      arrow::write_dataset(
+        dm$fact_tables[[i]],
+        fctpath,
+        partitioning = partitioning
+        )
+    }
+  }
+
+}

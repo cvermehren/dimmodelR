@@ -7,7 +7,7 @@ testthat::test_that("dim model aggregates match source aggregates", {
     dim_market = c("view_name", "country")
   )
 
-  dm <- dm_model_create(campaign_metrics, dim_cols)
+  dm <- dm_model(campaign_metrics, dim_cols)
   dm <- suppressMessages(dm_refresh_one_fact(dm, campaign_metrics, "fct_campaign"))
 
 
@@ -39,11 +39,11 @@ testthat::test_that("dim model produce expected outputs", {
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model_create(campaign_metrics, dim_cols)
+  dm_model <- dm_model(campaign_metrics, dim_cols)
 
   dim_cols = list(dim_email = "email")
 
-  dm_model <- dm_model_create(email_metrics, dim_cols, dm_model)
+  dm_model <- dm_model(email_metrics, dim_cols, dm_model)
 
   new_fact_list <- list(
     fct_email =email_metrics,

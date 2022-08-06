@@ -6,7 +6,7 @@
 #'   created.
 #' @param dimension_columns A named list with vectors of column names from
 #'   `flat_table` each of which should form a dimension table.
-#' @param dm A `dm_model` object, i.e. an object returned by `dm_model_create`
+#' @param dm A `dm_model` object, i.e. an object returned by `dm_model`
 #'   or `dm_model_refresh`.
 #' @param return_facts Should facts be returned?
 #'
@@ -19,11 +19,11 @@
 #'
 #' \dontrun{
 #'
-#' dm_model_create(flat_table, dimension_columns)
+#' dm_model(flat_table, dimension_columns)
 #'
 #'
 #' }
-dm_model_create <- function(flat_table,
+dm_model <- function(flat_table,
                             dimension_columns,
                             dm = NULL,
                             return_facts = FALSE) {
@@ -58,7 +58,7 @@ dm_model_create <- function(flat_table,
 
   if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
     "dm must be a `dm_model` object, i.e. an object returned by
-    `dm_model_create` or `dm_model_refresh`.\n"
+    `dm_model` or `dm_model_refresh`.\n"
     )
 
   data.table::setDT(flat_table)
