@@ -10,7 +10,7 @@ test_that("error when dim columns ends with '_key'", {
   })
 
 
-test_that("error dim names do not start with 'dim_'", {
+test_that("error when dim names do not start with 'dim_'", {
 
   data("campaign_metrics")
   flat_table <-campaign_metrics
@@ -49,7 +49,7 @@ test_that("error when only one new_fact col match dm_model", {
 })
 
 
-test_that("error when new_fact cols match dm model", {
+test_that("error when no new_fact cols match dm model", {
 
   data(campaign_metrics)
   data(email_metrics)

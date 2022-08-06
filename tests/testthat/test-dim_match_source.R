@@ -8,10 +8,10 @@ testthat::test_that("dim model aggregates match source aggregates", {
   )
 
   dm <- dm_model_create(campaign_metrics, dim_cols)
-  dm <- suppressMessages(dm_model_refresh(dm, campaign_metrics))
+  dm <- suppressMessages(dm_refresh_one_fact(dm, campaign_metrics, "fct_campaign"))
 
 
-  cm <- as.data.table(dm$fact)
+  cm <- as.data.table(dm$fact_tables$fct_campaign)
   cm <- cm[, .(sessions = sum(sessions)), by = channel_key]
   dim_cm <- as.data.table(dm$dimensions$dim_channel)
 
@@ -29,7 +29,7 @@ testthat::test_that("dim model aggregates match source aggregates", {
 })
 
 
-testthat::test_that("dim model aggregates match source aggregates", {
+testthat::test_that("dim model produce expected outputs", {
 
   data(campaign_metrics)
   data(email_metrics)
@@ -55,7 +55,7 @@ testthat::test_that("dim model aggregates match source aggregates", {
   for (i in seq_along(new_fact_list)) {
 
     dm_model <- suppressMessages(
-      dm_model_refresh(dm_model, new_fact_list[[i]], fact_name = fact_names[i])
+      dm_refresh_one_fact(dm_model, new_fact_list[[i]], fact_name = fact_names[i])
       )
 
   }
