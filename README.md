@@ -6,7 +6,29 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of dimmodelR is to …
+Transforming source data to a [dimensional
+model](https://en.wikipedia.org/wiki/Dimensional_modeling) is one of the
+most difficult, time-consuming and error-prone tasks within data
+engineering and business intelligence.
+
+`dimmodelR` aims to make this task easy. It provides a set of R
+functions which automate the process of creating and refreshing a
+central star-schema model consisting of multiple fact tables and shared
+dimension tables.
+
+## Features
+
+-   Transform a data frame into a [star
+    schema](https://en.wikipedia.org/wiki/Star_schema) with dimensions
+    and fact tables related by [surrogate
+    keys](https://en.wikipedia.org/wiki/Surrogate_key)
+-   Extend a star schema with more transformations turning it into a
+    central model also known as [fact
+    constellation](https://en.wikipedia.org/wiki/Fact_constellation)
+-   Easily refresh a central model incrementally as new source data
+    become available
+-   Save the model as csv or parquet files in a practical predefined
+    folder structure
 
 ## Installation
 

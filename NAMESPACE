@@ -2,5 +2,6 @@
 
 export(dm_model)
 export(dm_refresh)
-export(dm_save)
+export(dm_write_csv)
+export(dm_write_parquet)
 import(data.table)
