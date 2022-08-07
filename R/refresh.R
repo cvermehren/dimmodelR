@@ -119,6 +119,10 @@ dm_refresh <- function(dm, new_fact_list) {
 #' }
 dm_save <- function(dm, path, partitioning = NULL) {
 
+  if (!requireNamespace("arrow", quietly = TRUE)) {
+    stop("Please install package arrow to use this function.")
+  }
+
   if(dir.exists(path)) stop("The directory '", path, "' already exists.")
 
   # Save dimensions (no partitioning)
