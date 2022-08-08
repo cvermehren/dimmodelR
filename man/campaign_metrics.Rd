@@ -3,32 +3,24 @@
 \docType{data}
 \name{campaign_metrics}
 \alias{campaign_metrics}
-\title{Demo data: Campaign Metrics}
+\title{Demo Data: Campaign Metrics}
 \format{
-A data frame with 24 rows and 2 columns:
-\describe{
-  \item{date}{Primary key (unique identifier of hour).}
-  \item{view_name}{Hour as a name (character type).}
-  \item{country}{Hour as a name (character type).}
-  \item{channel_grouping}{Hour as a name (character type).}
-  \item{source}{Hour as a name (character type).}
-  \item{medium}{Hour as a name (character type).}
-  \item{campaign}{Hour as a name (character type).}
-  \item{impressions}{Hour as a name (character type).}
-  \item{ad_clicks}{Hour as a name (character type).}
-  \item{ad_cost}{Hour as a name (character type).}
-  \item{sessions}{Hour as a name (character type).}
-  \item{transactions}{Hour as a name (character type).}
-  \item{revenue}{Hour as a name (character type).}
-  }
-}
-\source{
-Anonymized data from google analytics.
+An object of class \code{data.frame} with 449 rows and 7 columns.
 }
 \usage{
 campaign_metrics
 }
 \description{
-A look-up dimension related to Fact Visitors through the hour_key column.
+A sample of data extracted and combined from different advertising platforms:
+Facebook, Google Ads, Bing, etc. Most importantly, the data show the total
+amount of money invested in the campaigns.
+}
+\details{
+Campaign data can be combined with [web metrics]\link{web_metrics}
+The most important metric is `ad_cost` since
+this is needed for ROI calculation.
+}
+\seealso{
+\link{web_metrics}, \link{email_metrics}
 }
 \keyword{datasets}

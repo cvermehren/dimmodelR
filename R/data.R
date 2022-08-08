@@ -1,41 +1,48 @@
-#' Demo data: Campaign Metrics
+#' Demo Data: Web Metrics
 #'
-#' A look-up dimension related to Fact Visitors through the hour_key column.
+#' A sample of data from a web analytics tool such as Google Analytics which is
+#' typical of an online retailer. The data show how the retailer's digital
+#' channels are performing.
 #'
-#' @format A data frame with 24 rows and 2 columns:
-#' \describe{
-#'   \item{date}{Primary key (unique identifier of hour).}
-#'   \item{view_name}{Hour as a name (character type).}
-#'   \item{country}{Hour as a name (character type).}
-#'   \item{channel_grouping}{Hour as a name (character type).}
-#'   \item{source}{Hour as a name (character type).}
-#'   \item{medium}{Hour as a name (character type).}
-#'   \item{campaign}{Hour as a name (character type).}
-#'   \item{impressions}{Hour as a name (character type).}
-#'   \item{ad_clicks}{Hour as a name (character type).}
-#'   \item{ad_cost}{Hour as a name (character type).}
-#'   \item{sessions}{Hour as a name (character type).}
-#'   \item{transactions}{Hour as a name (character type).}
-#'   \item{revenue}{Hour as a name (character type).}
-#'   }
+#' Unique channels are identified by combining the columns `source`, `medium`
+#' and `campaign`. Some channels are paid for by the retailer, others are not.
+#' In the latter case the `campaign` column will show '(not set)'.
 #'
-#' @source Anonymized data from google analytics.
+#' Performance is measured by the number of visits (sessions), the number of
+#' purchases (transactions) and the total revenue a channel brings to the
+#' website. A common performance metric is the conversion rate, which can be
+#' calculated as the number of purchases divided by the number of sessions.
+#'
+#' Typically a retailer would also want to calculate the Return On Ad Spend
+#' (ROAS) for each paid-for campaign. However, web metrics data do not include
+#' information on spend (ad costs), which is why online retailers often try to
+#' combine these data with data pulled from the advertising platforms there are
+#' investing in: Facebook, Google Ads, Bing, etc. (available as demo data in
+#' \link{campaign_metrics}).
+#'
+#' @seealso \link{campaign_metrics}, \link{email_metrics}
+"web_metrics"
+
+#' Demo Data: Campaign Metrics
+#'
+#' A sample of data extracted and combined from different advertising platforms:
+#' Facebook, Google Ads, Bing, etc. Most importantly, the data show the total
+#' amount invested in the campaigns (`ad_cost`).
+#'
+#' Campaign data can be combined with \link{web_metrics} to get the full picture
+#' of campaign performance. The most important performance metric is Return On
+#' Advertising Spend (ROAS) calculated as revenue (from \link{web_metrics})
+#' divided by ad cost in this data.
+#'
+#'
+#'
+#' @seealso \link{web_metrics}, \link{email_metrics}
 "campaign_metrics"
 
-#' Demo data: Email Send Data
+#' Demo Data: Email Metrics
 #'
 #' A fact table showing individual visitors and their transactions on an
 #' e-commerce website.
 #'
-#' @format A data frame with 10,033 rows and 5 columns:
-#' \describe{
-#'   \item{email}{Unique identifier of the visitor.}
-#'   \item{date}{Unique identifier of the transactions.}
-#'   \item{sent}{The value of the transaction in USD.}
-#'   \item{bounced}{The time of visit in minutes since 1970-01-01.}
-#'   \item{opened}{Foreign key referring to dim_hour.}
-#'   \item{clicked}{Foreign key referring to dim_hour.}
-#'   }
-#'
-#' @source Anonymized data from google analytics.
+#' @seealso \link{web_metrics}, \link{campaign_metrics}
 "email_metrics"

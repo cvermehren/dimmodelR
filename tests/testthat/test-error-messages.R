@@ -12,11 +12,11 @@ test_that("error when dim columns ends with '_key'", {
 
 test_that("error when dim names do not start with 'dim_'", {
 
-  data("campaign_metrics")
-  flat_table <-campaign_metrics
+  data("web_metrics")
+  flat_table <-web_metrics
 
   dimension_columns = list(
-    test = c("channel_grouping", "source", "medium", "campaign"),
+    test = c("source", "medium", "campaign"),
     dim_market = c("view_name", "country")
   )
 
@@ -27,18 +27,18 @@ test_that("error when dim names do not start with 'dim_'", {
 
 
 
-test_that("error when only one new_fact col match dm_model", {
+test_that("error when only one new_fact col matches dm_model", {
 
-  data(campaign_metrics)
+  data(web_metrics)
   data(email_metrics)
   names(email_metrics)[1] <- "campaign"
 
   dim_cols = list(
-    dim_channel = c("channel_grouping", "source", "medium", "campaign"),
+    dim_channel = c("source", "medium", "campaign"),
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model(campaign_metrics, dim_cols)
+  dm_model <- dm_model(web_metrics, dim_cols)
 
   old_dim <- dm_model$dimensions$dim_channel
   new_fact <- email_metrics
@@ -51,15 +51,15 @@ test_that("error when only one new_fact col match dm_model", {
 
 test_that("error when no new_fact cols match dm model", {
 
-  data(campaign_metrics)
+  data(web_metrics)
   data(email_metrics)
 
   dim_cols = list(
-    dim_channel = c("channel_grouping", "source", "medium", "campaign"),
+    dim_channel = c("source", "medium", "campaign"),
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model(campaign_metrics, dim_cols)
+  dm_model <- dm_model(web_metrics, dim_cols)
 
   old_dim <- dm_model$dimensions$dim_channel
   new_fact <- email_metrics

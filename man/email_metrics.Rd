@@ -3,20 +3,9 @@
 \docType{data}
 \name{email_metrics}
 \alias{email_metrics}
-\title{Demo data: Email Send Data}
+\title{Demo Data: Email Metrics}
 \format{
-A data frame with 10,033 rows and 5 columns:
-\describe{
-  \item{email}{Unique identifier of the visitor.}
-  \item{date}{Unique identifier of the transactions.}
-  \item{sent}{The value of the transaction in USD.}
-  \item{bounced}{The time of visit in minutes since 1970-01-01.}
-  \item{opened}{Foreign key referring to dim_hour.}
-  \item{clicked}{Foreign key referring to dim_hour.}
-  }
-}
-\source{
-Anonymized data from google analytics.
+An object of class \code{data.frame} with 376 rows and 6 columns.
 }
 \usage{
 email_metrics
@@ -24,5 +13,8 @@ email_metrics
 \description{
 A fact table showing individual visitors and their transactions on an
 e-commerce website.
+}
+\seealso{
+\link{web_metrics}, \link{campaign_metrics}
 }
 \keyword{datasets}

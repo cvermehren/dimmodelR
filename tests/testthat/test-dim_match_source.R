@@ -1,17 +1,17 @@
 testthat::test_that("dim model aggregates match source aggregates", {
 
-  data(campaign_metrics)
+  data(web_metrics)
 
   dim_cols = list(
-    dim_channel = c("channel_grouping", "source", "medium", "campaign"),
+    dim_channel = c("source", "medium", "campaign"),
     dim_market = c("view_name", "country")
   )
 
-  dm <- dm_model(campaign_metrics, dim_cols)
-  dm <- suppressMessages(dm_refresh_one_fact(dm, campaign_metrics, "fct_campaign"))
+  dm <- dm_model(web_metrics, dim_cols)
+  dm <- suppressMessages(dm_refresh_one_fact(dm, web_metrics, "fct_web"))
 
 
-  cm <- as.data.table(dm$fact_tables$fct_campaign)
+  cm <- as.data.table(dm$fact_tables$fct_web)
   cm <- cm[, .(sessions = sum(sessions)), by = channel_key]
   dim_cm <- as.data.table(dm$dimensions$dim_channel)
 
@@ -22,7 +22,7 @@ testthat::test_that("dim model aggregates match source aggregates", {
   res1[, channel_key := NULL]
   setkeyv(res1, names(res1))
 
-  res2 <- campaign_metrics[, .(sessions = sum(sessions)), by = .(channel_grouping, source, medium, campaign)]
+  res2 <- web_metrics[, .(sessions = sum(sessions)), by = .(source, medium, campaign)]
   setkeyv(res2, names(res2))
 
   expect_identical(res1, res2)
@@ -31,41 +31,43 @@ testthat::test_that("dim model aggregates match source aggregates", {
 
 testthat::test_that("dim model produce expected outputs", {
 
-  data(campaign_metrics)
+  data(web_metrics)
   data(email_metrics)
 
   dim_cols = list(
-    dim_channel = c("channel_grouping", "source", "medium", "campaign"),
+    dim_channel = c("source", "medium", "campaign"),
     dim_market = c("view_name", "country")
   )
 
-  dm_model <- dm_model(campaign_metrics, dim_cols)
+  dm_model <- dm_model(web_metrics, dim_cols)
 
   dim_cols = list(dim_email = "email")
 
   dm_model <- dm_model(email_metrics, dim_cols, dm_model)
 
   new_fact_list <- list(
-    fct_email =email_metrics,
-    fct_campaign = campaign_metrics
+    fct_email = email_metrics,
+    fct_web = web_metrics
   )
 
-  fact_names <- names(new_fact_list)
+  dm_model <-  suppressMessages(dm_refresh(dm_model, new_fact_list))
 
-  for (i in seq_along(new_fact_list)) {
-
-    dm_model <- suppressMessages(
-      dm_refresh_one_fact(dm_model, new_fact_list[[i]], fact_name = fact_names[i])
-      )
-
-  }
+  # fact_names <- names(new_fact_list)
+  #
+  # for (i in seq_along(new_fact_list)) {
+  #
+  #   dm_model <- suppressMessages(
+  #     dm_refresh_one_fact(dm_model, new_fact_list[[i]], fact_name = fact_names[i])
+  #     )
+  #
+  # }
 
   expect_equal(length(dm_model), 2)
   expect_equal(length(dm_model$fact_tables), 2)
   expect_equal(length(dm_model$dimensions), 3)
 
-  expect_equal(nrow(dm_model$fact_tables$fct_email), 1500)
-  expect_equal(nrow(dm_model$fact_tables$fct_campaign), 1500)
+  expect_equal(nrow(dm_model$fact_tables$fct_email), 376)
+  expect_equal(nrow(dm_model$fact_tables$fct_web), 1500)
 
 })
 
