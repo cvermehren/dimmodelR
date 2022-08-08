@@ -13,12 +13,13 @@ campaign_metrics
 \description{
 A sample of data extracted and combined from different advertising platforms:
 Facebook, Google Ads, Bing, etc. Most importantly, the data show the total
-amount of money invested in the campaigns.
+amount invested in the campaigns (`ad_cost`).
 }
 \details{
-Campaign data can be combined with [web metrics]\link{web_metrics}
-The most important metric is `ad_cost` since
-this is needed for ROI calculation.
+Campaign data can be combined with \link{web_metrics} to get the full picture
+of campaign performance. The most important performance metric is Return On
+Advertising Spend (ROAS) calculated as revenue (from \link{web_metrics})
+divided by ad cost in this data.
 }
 \seealso{
 \link{web_metrics}, \link{email_metrics}

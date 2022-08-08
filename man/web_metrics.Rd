@@ -25,12 +25,12 @@ purchases (transactions) and the total revenue a channel brings to the
 website. A common performance metric is the conversion rate, which can be
 calculated as the number of purchases divided by the number of sessions.
 
-Typically a retailer would also want to calculate the ROI for each paid-for
-campaign. However, web metrics data do not include information on investments
-(ad costs), which is why online retailers often try to combine these data
-with data pulled from the advertising platforms there are investing in:
-Facebook, Google Ads, Bing, etc. (available as demo data in
- \link{campaign_metrics}).
+Typically a retailer would also want to calculate the Return On Ad Spend
+(ROAS) for each paid-for campaign. However, web metrics data do not include
+information on spend (ad costs), which is why online retailers often try to
+combine these data with data pulled from the advertising platforms there are
+investing in: Facebook, Google Ads, Bing, etc. (available as demo data in
+\link{campaign_metrics}).
 }
 \seealso{
 \link{campaign_metrics}, \link{email_metrics}
