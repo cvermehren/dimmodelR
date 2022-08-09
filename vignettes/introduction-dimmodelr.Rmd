@@ -19,7 +19,12 @@ knitr::opts_chunk$set(
 <!-- ``` -->
 
 Business-intelligence tools such as Power BI, Tableau and Qlik work best if the 
-data they connect to or import are organized as a so-called [dimensional model](https://en.wikipedia.org/wiki/Dimensional_modeling).
+data they connect to or import are organized as a so-called [dimensional model](https://en.wikipedia.org/wiki/Dimensional_modeling). 
+While it is possible for these tools to process data from flat tables, a 
+dimensional model performs better, scales better and is easier to extend with
+unexpected new data.
+
+
 
 
 
