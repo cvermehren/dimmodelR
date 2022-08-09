@@ -4,8 +4,9 @@ Title: Tools for Creating Dimensional Models
 Version: 0.1.0
 Authors@R: person("Christian", "Vermehren", email = "cv@cantab.net", 
     role = c("aut", "cre"))
-Description: Provides functions for converting flat tables into a dimensional 
-    model (i.e. a relational model with dimensions and fact tables).
+Description: Provides functions for transforming a one or more data frames into 
+    a central data model consisting of multiple fact tables and a set of shared 
+    dimensions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

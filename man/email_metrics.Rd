@@ -11,8 +11,17 @@ An object of class \code{data.frame} with 376 rows and 6 columns.
 email_metrics
 }
 \description{
-A fact table showing individual visitors and their transactions on an
-e-commerce website.
+These data resemble data that could be extracted from a marketing automation
+tool such as SalesForce Marketing Cloud or MailChimp. They show the
+performance of each email in terms of the number of times it was sent, opened
+and clicked.
+}
+\details{
+The email metrics data share only one column (the column named `email`) with
+\link{web_metrics} and \link{campaign_metrics} (the column named `campaign`).
+But this relation is (potentially) a many-to-many relation, which is why the
+email data cannot share a dimension directly with the web and campaign
+metrics data.
 }
 \seealso{
 \link{web_metrics}, \link{campaign_metrics}

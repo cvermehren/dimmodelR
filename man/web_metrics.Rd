@@ -11,26 +11,26 @@ An object of class \code{data.frame} with 1500 rows and 9 columns.
 web_metrics
 }
 \description{
-A sample of data from a web analytics tool such as Google Analytics which is
-typical of an online retailer. The data show how the retailer's digital
-channels are performing.
+These data resemble data that could be extracted from a web analytics tool
+such as Google Analytics. They show how an online retailer's digital channels
+are performing.
 }
 \details{
-Unique channels are identified by combining the columns `source`, `medium`
-and `campaign`. Some channels are paid for by the retailer, others are not.
-In the latter case the `campaign` column will show '(not set)'.
+To identify unique channels it is necessary to combine the columns `source`,
+`medium` and `campaign`. Some channels are paid for by the retailer, others
+are not. If not, the `campaign` column will show '(not set)'.
 
-Performance is measured by the number of visits (sessions), the number of
-purchases (transactions) and the total revenue a channel brings to the
-website. A common performance metric is the conversion rate, which can be
-calculated as the number of purchases divided by the number of sessions.
+Channel performance is measured by number of visits (sessions), number of
+purchases (transactions) and total revenue. A common performance metric is
+the conversion rate, which can be calculated as the number of purchases
+divided by the number of sessions.
 
 Typically a retailer would also want to calculate the Return On Ad Spend
-(ROAS) for each paid-for campaign. However, web metrics data do not include
-information on spend (ad costs), which is why online retailers often try to
-combine these data with data pulled from the advertising platforms there are
-investing in: Facebook, Google Ads, Bing, etc. (available as demo data in
-\link{campaign_metrics}).
+(ROAS) for each paid-for campaign. However, web metrics data do not normally
+include information on spend (ad costs). As such, online retailers often try
+to combine these data with data pulled from the advertising platforms there
+are investing in: Facebook Ads, Google Ads, Bing Ads, etc. (available as demo
+data in \link{campaign_metrics}).
 }
 \seealso{
 \link{campaign_metrics}, \link{email_metrics}

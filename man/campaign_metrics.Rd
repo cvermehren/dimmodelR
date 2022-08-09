@@ -11,15 +11,21 @@ An object of class \code{data.frame} with 449 rows and 7 columns.
 campaign_metrics
 }
 \description{
-A sample of data extracted and combined from different advertising platforms:
-Facebook, Google Ads, Bing, etc. Most importantly, the data show the total
-amount invested in the campaigns (`ad_cost`).
+These data resemble data that could be extracted extracted and combined from
+different advertising platforms: Facebook Ads, Google Ads, Bing Ads, etc.
+Among other things, the data show the total amount of money invested in each
+campaign (`ad_cost`).
 }
 \details{
-Campaign data can be combined with \link{web_metrics} to get the full picture
-of campaign performance. The most important performance metric is Return On
-Advertising Spend (ROAS) calculated as revenue (from \link{web_metrics})
-divided by ad cost in this data.
+The campaign metrics data can be combined with \link{web_metrics} to get the
+full picture of campaign performance. You can merge the data using the
+columns `source`, `medium` and `campaign` as key. For the purposes of this
+package, these three columns will be used to create a single dimension which
+is shared by two fact tables.
+
+The most important performance metric is Return On Advertising Spend (ROAS)
+calculated as `revenue` (from \link{web_metrics}) divided by `ad_cost`.
+However, `impressions` and `clicks` are also worth considering.
 }
 \seealso{
 \link{web_metrics}, \link{email_metrics}

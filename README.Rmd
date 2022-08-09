@@ -22,19 +22,16 @@ Transforming source data to a [dimensional model](https://en.wikipedia.org/wiki/
 is one of the most difficult, time-consuming and error-prone tasks within data 
 engineering and business intelligence. 
 
-`dimmodelR` aims to make this task  easy. It provides a set of R functions which 
-automate the process of creating and refreshing a central star-schema model 
-consisting of multiple fact tables and shared dimension tables. 
+The `dimmodelR` package aims to make this task easy using R. It provides a 
+set of functions for automating the process of creating and refreshing a central
+data model consisting of multiple fact tables and a set of shared dimensions.
 
+It supports the following workflow:
 
-## Features
-
-* Transform a data frame into a [star schema](https://en.wikipedia.org/wiki/Star_schema) 
-  with dimensions and fact tables related by [surrogate keys](https://en.wikipedia.org/wiki/Surrogate_key)
-* Extend a star schema with more transformations turning it into a central model also known as 
-  [fact constellation](https://en.wikipedia.org/wiki/Fact_constellation)
-* Easily refresh a central model incrementally as new source data become available
-* Save the model as csv or parquet files in a practical predefined folder structure
+1. Split a data frame into a fact table and one or more dimensions (also known as a [star schema](https://en.wikipedia.org/wiki/Star_schema))
+2. Create multiple star schemas from data frames and add them to the same model
+3. Populate the model with data from a list of data frames and set up incremental refresh
+4. Serve the model as csv or parquet files for tools such as Power BI, Tableau or Qlik
 
 
 ## Installation
@@ -46,12 +43,62 @@ You can install the development version of dimmodelR from [GitHub](https://githu
 devtools::install_github("cvermehren/dimmodelR")
 ```
 
+
+## Create a star schema
+
+Imagine we want to transform data extracted from a web analytics tool such as 
+Google Analytics into a star schema. We might have a dataset which looks like 
+this:
+```{r, eval=T}
+library(dimmodelR)
+
+head(web_metrics)
+
+
+```
+
+The dataset contains three numeric variables which which can be considered
+facts: `sessions`, `transactions` and `revenue`. The rest of the columns provide
+context to these facts and can be considered dimensions.
+
+Let's decide to categorize them into two dimensions which we call `dim_channel` 
+and `dim_market`:
+
+```{r, eval=T}
+dimensions <- list(
+  dim_channel = c("source", "medium", "campaign"),
+  dim_market = c("view_name", "country")
+)
+```
+
+With this definition of dimensions, we can create a star schema using the
+`dm_model` function:
+
+```{r, eval=T}
+dm <- dm_model(web_metrics, dimensions, return_facts = TRUE)
+
+str(dm)
+```
+
+
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r, eval=FALSE}
+```{r, eval=T}
 library(dimmodelR)
+1+2
 ## basic example code
 ```
 
+
+
+## Features
+
+* Transform a data frame into a [star schema](https://en.wikipedia.org/wiki/Star_schema) 
+  with dimensions and fact tables related by [surrogate keys](https://en.wikipedia.org/wiki/Surrogate_key)
+* Extend a star schema with more transformations turning it into a central model also known as 
+  [fact constellation](https://en.wikipedia.org/wiki/Fact_constellation)
+* Easily refresh a central model incrementally as new source data become available
+* Save the model as csv or parquet files in a practical predefined folder structure
