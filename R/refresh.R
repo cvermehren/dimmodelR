@@ -88,6 +88,8 @@ dm_refresh <- function(dm, new_fact_list) {
 
   for (i in seq_along(new_fact_list)) {
 
+    if(nrow(new_fact_list[[i]])==0) next
+
     dm <- dm_refresh_one_fact(
       dm,
       new_fact_list[[i]],

@@ -161,9 +161,9 @@ data and the existing dimensions in the model.
 
 To save the result as csv files:
 
-```{r, eval=T}
+```{r, eval=F}
 dm_write_csv(dm, "my-folder")
-
+ 
 list.files(path = "my-folder", recursive = TRUE)
 
 ```
@@ -180,33 +180,53 @@ source data followed by `dm_write_parquet`.
 
 Let's simulate how this would work.
 
-```{r, eval=T}
+```{r, eval=F}
 
+# Load demo data
 data("web_metrics")
-dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
+data("campaign_metrics")
+data("email_metrics")
 
-#i=dates[3]
-# 
-# for (i in dates) {
-# 
-#   new_source_data <- web_metrics[web_metrics$date == i,]
-# 
-#   facts <- list(
-#     fct_email = email_metrics,
-#     fct_campaign = campaign_metrics,
-#     fct_web = web_metrics
-#     )
-# 
-#   dm <- dm_refresh(dm, facts)
-# 
-#   dm_write_parquet(dm, "my-incremental-model", partitioning = "date")
-# }
+# Ad partitioning columns
+web_metrics$month <- lubridate::month(web_metrics$date)
+campaign_metrics$month <- lubridate::month(campaign_metrics$date)
+email_metrics$month <- lubridate::month(email_metrics$date)
 
+# Create campaig_metrics model
+dimensions <- list(dim_channel = c("source", "medium", "campaign"))
+dm <- dm_model(campaign_metrics, dimensions)
 
-# # dm_write_csv(dm, "my-folder")
-# # 
-# # list.files(path = "my-folder", recursive = TRUE)
+# Extend model with web_metrics
+dimensions <- list(
+  dim_channel = c("source", "medium", "campaign"), 
+  dim_market = c("view_name", "country"))
+dm <- dm_model(web_metrics, dimensions, dm)
 
+# Extend model with email_metrics
+dimensions <- list(dim_channel = c("email"))
+dm <- dm_model(email_metrics, dimensions, dm)
+
+# Make looping-list for incremental refresh
+months <- sort(unique(web_metrics$month))
+
+# Simulate incremental refresh
+for (i in months) {
+  new_campaign_metrics <- campaign_metrics[which(campaign_metrics$month == i),]
+  new_web_metrics <- web_metrics[which(web_metrics$month == i),]
+  new_email_metrics <- email_metrics[which(email_metrics$month == i),]
+  
+  facts <- list(
+    fct_campaign = new_campaign_metrics,
+    fct_web = new_web_metrics,
+    fct_email = new_email_metrics
+    )
+  
+  dm <- dm_refresh(dm, facts)
+  
+  dm_write_parquet(dm,path = "my-incremental-model", partitioning = c("month"))
+}
+
+list.files(path = "my-incremental-model", recursive = TRUE)
 ```
 
 

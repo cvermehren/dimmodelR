@@ -95,6 +95,7 @@ dm_dim_refresh <- function(old_dim, new_fact) {
   #new_fact[, get(key_name)]
   stopifnot( nrow(new_fact[is.na(get(key_name))]) == 0 )
   stopifnot( fact_rows == nrow(new_fact) )
+
   stopifnot( new_fact[, max(get(key_name))] <= dim[, max(get(key_name))])
 
   data.table::setDF(dim)
