@@ -273,9 +273,10 @@ Let’s simulate how this would work.
 
 ``` r
 
+data("web_metrics")
 dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
 
-# i=dates[3]
+#i=dates[3]
 # 
 # for (i in dates) {
 # 
@@ -291,8 +292,8 @@ dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
 # 
 #   dm_write_parquet(dm, "my-incremental-model", partitioning = "date")
 # }
-# 
-# 
+
+
 # # dm_write_csv(dm, "my-folder")
 # # 
 # # list.files(path = "my-folder", recursive = TRUE)
