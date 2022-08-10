@@ -19,13 +19,16 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-Transforming source data to a [dimensional model](https://en.wikipedia.org/wiki/Dimensional_modeling) 
-is one of the most difficult, time-consuming and error-prone tasks within data 
-engineering and business intelligence. 
+Business-intelligence tools such as Power BI, Tableau and Qlik work best when 
+data are organized as a [dimensional model](https://en.wikipedia.org/wiki/Dimensional_modeling).
+A common task within business intelligence is therefore to transform source data 
+according to this model's underlying design principle known as 
+[star schema](https://en.wikipedia.org/wiki/Star_schema).
 
-The `dimmodelR` package aims to make this task easy using R. It provides a 
-set of functions for automating the process of creating and refreshing a central
-data model consisting of multiple fact tables and a set of shared dimensions.
+The `dimmodelR` package makes this easy using R. It provides a set of functions 
+for automating the process of creating and refreshing a central data model 
+consisting of multiple [fact tables](https://en.wikipedia.org/wiki/Fact_table) 
+and a set of shared [dimensions](https://en.wikipedia.org/wiki/Dimension_(data_warehouse)#Dimension_table).
 
 
 ## Installation
@@ -36,6 +39,96 @@ You can install the development version of dimmodelR from [GitHub](https://githu
 # install.packages("devtools")
 devtools::install_github("cvermehren/dimmodelR")
 ```
+
+## Workflow
+
+The following workflow is supported:
+
+1. Define a star-schema model from one or more data frames
+2. Populate the model with data and set up incremental refresh
+4. Save the model as csv or parquet files and serve them to a BI tool
+
+
+## Define a star-schema model
+
+A star-schema model can be based on multiple data frames, but needs to be built 
+gradually. We will start with the included demo dataset `campaign_metrics`:
+
+```{r, eval=T}
+library(dimmodelR)
+
+data(campaign_metrics)
+
+str(campaign_metrics)
+```
+
+Typically fact tables are formed by numerical columns, while dimensions are 
+formed by character columns.
+
+To define a star-schema model we only need to specify the dimensions. Fact 
+tables will be added later when we populate the model with data.
+
+```{r, eval=T}
+# Define dimensions
+dimensions = list(dim_channel = c("source", "medium", "campaign"))
+
+# Initiate the model
+dm <- dm_model(campaign_metrics, dimensions)
+
+str(dm)
+```
+
+The function `dm_model` has extracted one dimension, `dim_channel`, from the 
+data frame and added a [surrogate key](https://en.wikipedia.org/wiki/Surrogate_key) 
+column named `channel_key`. 
+
+The surrogate key will function as the [primary key](https://en.wikipedia.org/wiki/Primary_key) 
+of `dim_channel` which will reference a [foreign key](https://en.wikipedia.org/wiki/Foreign_key) 
+in the fact table when we populate the model with data.
+
+Before we do so, let's extend the model with a few more dimensions.
+
+```{r, eval=T}
+data("web_metrics")
+
+str(web_metrics)
+
+```
+
+The `web_metrics` dataset introduces two new dimension columns: `view_name` and 
+`country`. These can be added to the model as long as we remember to use the 
+model itself (`dm`) as an argument in the function.
+
+```{r, eval=T}
+dimensions = list(
+  dim_channel = c("source", "medium", "campaign"),
+  dim_market = c("view_name", "country")
+)
+
+# Extend the model using the model itself `dm` as an argument
+dm <- dm_model(web_metrics, dimensions, dm)
+
+str(dm)
+```
+
+The model now consist of two dimensions. Let's add one more using the final demo 
+dataset.
+
+```{r, eval=T}
+data("email_metrics")
+
+dimensions = list(
+  dim_email = c("email")
+  )
+dm <- dm_model(email_metrics, dimensions, dm)
+
+str(dm)
+```
+
+## Populate the model with data
+
+
+
 
 
 ## Example
