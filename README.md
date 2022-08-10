@@ -276,26 +276,26 @@ Let’s simulate how this would work.
 dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
 
 # i=dates[3]
-
+# 
 # for (i in dates) {
-#   
+# 
 #   new_source_data <- web_metrics[web_metrics$date == i,]
-#   
+# 
 #   facts <- list(
-#     fct_email = email_metrics, 
+#     fct_email = email_metrics,
 #     fct_campaign = campaign_metrics,
 #     fct_web = web_metrics
 #     )
-#   
+# 
 #   dm <- dm_refresh(dm, facts)
-#   
+# 
 #   dm_write_parquet(dm, "my-incremental-model", partitioning = "date")
 # }
-
-
-# dm_write_csv(dm, "my-folder")
 # 
-# list.files(path = "my-folder", recursive = TRUE)
+# 
+# # dm_write_csv(dm, "my-folder")
+# # 
+# # list.files(path = "my-folder", recursive = TRUE)
 ```
 
 ## Example

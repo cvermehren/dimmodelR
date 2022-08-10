@@ -123,7 +123,9 @@ dm_write_parquet <- function(dm, path, partitioning = NULL) {
     stop("Please install package arrow to use this function.")
   }
 
-  if(dir.exists(path)) stop("The directory '", path, "' already exists.")
+  # if(!overwrite & dir.exists(path)) stop(
+  #   "The directory '", path, "' already exists. Please set overwrite to"
+  #   )
 
   # Save dimensions (no partitioning)
   dim_names <- names(dm$dimensions)
