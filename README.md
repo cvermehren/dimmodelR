@@ -146,9 +146,8 @@ final demo dataset.
 ``` r
 data("email_metrics")
 
-dimensions = list(
-  dim_email = c("email")
-  )
+dimensions = list(dim_email = c("email"))
+
 dm <- dm_model(email_metrics, dimensions, dm)
 
 str(dm)
@@ -166,15 +165,138 @@ str(dm)
 #>   ..$ dim_email  :'data.frame':  46 obs. of  2 variables:
 #>   .. ..$ email_key: num [1:46] 1 2 3 4 5 6 7 8 9 10 ...
 #>   .. ..$ email    : chr [1:46] "email_241" "email_163" "email_30" "email_164" ...
-#>   .. ..- attr(*, "jobReference")=List of 3
-#>   .. .. ..$ projectId: chr "gar-creds-185213"
-#>   .. .. ..$ jobId    : chr "job_UZXfDJVHRH15-f4JwQ9BIKcObN19"
-#>   .. .. ..$ location : chr "EU"
-#>   .. ..- attr(*, "pageToken")= chr "BFTSDQS6QIAQAAASA4EAAEEAQCAAKGQGBDUAOEHIA4QLBLQV"
 #>  - attr(*, "class")= chr "dm_model"
 ```
 
 ## Populate the model with data
+
+We now have a dimensional model consisting of three dimensions, but no
+facts. To populate the model with facts, we simply pass the model and
+the original data frames to the function `dm_refresh`.
+
+``` r
+# Specify the data frames which the model was built from
+facts <- list(
+  fct_email = email_metrics, 
+  fct_campaign = campaign_metrics,
+  fct_web = web_metrics
+)
+
+# Populate the model with data
+dm <- dm_refresh(dm, facts)
+#> dim_channel does not match new_fact; skipping the dimension...
+#> dim_market does not match new_fact; skipping the dimension...
+#> No new entries of email_key. Adding email_key to new fact...
+#> There were 17 new entries of channel_key. Adding channel_key to new fact...
+#> dim_market does not match new_fact; skipping the dimension...
+#> dim_email does not match new_fact; skipping the dimension...
+#> There were 282 new entries of channel_key. Adding channel_key to new fact...
+#> No new entries of market_key. Adding market_key to new fact...
+#> dim_email does not match new_fact; skipping the dimension...
+
+str(dm)
+#> List of 2
+#>  $ dimensions :List of 3
+#>   ..$ dim_channel:'data.frame':  612 obs. of  4 variables:
+#>   .. ..$ channel_key: num [1:612] 1 2 3 4 5 6 7 8 9 10 ...
+#>   .. ..$ source     : chr [1:612] "source_735" "source_950" "source_549" "source_735" ...
+#>   .. ..$ medium     : chr [1:612] "email" "referral" "medium_99" "email" ...
+#>   .. ..$ campaign   : chr [1:612] "email_65" "(not set)" "campaign_934" "email_405" ...
+#>   ..$ dim_market :'data.frame':  2 obs. of  3 variables:
+#>   .. ..$ market_key: num [1:2] 1 2
+#>   .. ..$ view_name : chr [1:2] "view_1" "view_2"
+#>   .. ..$ country   : chr [1:2] "country_1" "country_2"
+#>   ..$ dim_email  :'data.frame':  46 obs. of  2 variables:
+#>   .. ..$ email_key: num [1:46] 1 2 3 4 5 6 7 8 9 10 ...
+#>   .. ..$ email    : chr [1:46] "email_241" "email_163" "email_30" "email_164" ...
+#>  $ fact_tables:List of 3
+#>   ..$ fct_email   :'data.frame': 376 obs. of  6 variables:
+#>   .. ..$ email_key: num [1:376] 33 33 33 33 33 33 12 12 12 12 ...
+#>   .. ..$ date     : num [1:376] 18861 18882 18872 18862 18875 ...
+#>   .. ..$ sent     : int [1:376] 53 1 38 47 1 1 131 852 135 197 ...
+#>   .. ..$ bounced  : int [1:376] 0 0 0 0 0 0 0 0 0 0 ...
+#>   .. ..$ opened   : int [1:376] 20 1 16 31 4 1 79 156 48 90 ...
+#>   .. ..$ clicked  : int [1:376] 14 0 11 19 1 1 6 18 9 16 ...
+#>   ..$ fct_campaign:'data.frame': 449 obs. of  5 variables:
+#>   .. ..$ channel_key: num [1:449] 10 10 10 10 10 10 10 10 10 47 ...
+#>   .. ..$ date       : Date[1:449], format: "2021-05-28" "2021-06-11" ...
+#>   .. ..$ impressions: num [1:449] 1123 634 1689 640 709 ...
+#>   .. ..$ ad_clicks  : num [1:449] 712 396 1037 444 463 ...
+#>   .. ..$ ad_cost    : num [1:449] 62.2 76.8 97.9 74.4 72.5 ...
+#>   ..$ fct_web     :'data.frame': 1500 obs. of  6 variables:
+#>   .. ..$ market_key  : num [1:1500] 1 1 1 1 1 1 1 1 1 1 ...
+#>   .. ..$ channel_key : num [1:1500] 5 5 5 5 5 5 331 332 332 333 ...
+#>   .. ..$ date        : Date[1:1500], format: "2021-04-01" "2021-05-27" ...
+#>   .. ..$ sessions    : num [1:1500] 450 557 863 647 455 559 1 1 1 1 ...
+#>   .. ..$ transactions: num [1:1500] 28 23 72 61 11 10 0 0 0 0 ...
+#>   .. ..$ revenue     : num [1:1500] 19225 11709 48431 44310 6450 ...
+#>  - attr(*, "class")= chr "dm_model"
+```
+
+The model now contains all the data from the three data frames (the
+source data) organized as a dimensional model.
+
+Notice how the refresh function has added not only three fact tables,
+but also new rows to the dimensions. The reason is that the initial
+model was based only on a sample of source data. When adding the entire
+datasets using the refresh function, the dimensions are updated with
+rows new to the model.
+
+Notice also how the function handles shared dimension. Two of the fact
+tables (`fct_campaign` and `fct_web`) share the `dim_channel` dimension.
+In other words, the function inserts this dimension’s primary key
+(`channel_key`) into both of these fact tables. It automatically
+identifies how to do so by comparing source data and the existing
+dimensions in the model.
+
+To save the result as csv files:
+
+``` r
+dm_write_csv(dm, "my-folder")
+
+list.files(path = "my-folder", recursive = TRUE)
+#> [1] "dimensions/dim_channel.csv"   "dimensions/dim_email.csv"    
+#> [3] "dimensions/dim_market.csv"    "fact_tables/fct_campaign.csv"
+#> [5] "fact_tables/fct_email.csv"    "fact_tables/fct_web.csv"
+```
+
+The `dm_write_csv` function saves the result in two sub-directories
+`dimensions` and `fact_tables`. It will always overwrite the files and,
+therefore, is not meant for incremental refresh.
+
+## Incremental refresh
+
+To refresh your model incrementally, simply feed the model with the
+newest source data followed by `dm_write_parquet`.
+
+Let’s simulate how this would work.
+
+``` r
+
+dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
+
+# i=dates[3]
+
+# for (i in dates) {
+#   
+#   new_source_data <- web_metrics[web_metrics$date == i,]
+#   
+#   facts <- list(
+#     fct_email = email_metrics, 
+#     fct_campaign = campaign_metrics,
+#     fct_web = web_metrics
+#     )
+#   
+#   dm <- dm_refresh(dm, facts)
+#   
+#   dm_write_parquet(dm, "my-incremental-model", partitioning = "date")
+# }
+
+
+# dm_write_csv(dm, "my-folder")
+# 
+# list.files(path = "my-folder", recursive = TRUE)
+```
 
 ## Example
 

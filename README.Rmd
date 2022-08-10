@@ -117,18 +117,96 @@ dataset.
 ```{r, eval=T}
 data("email_metrics")
 
-dimensions = list(
-  dim_email = c("email")
-  )
+dimensions = list(dim_email = c("email"))
+
 dm <- dm_model(email_metrics, dimensions, dm)
 
 str(dm)
 ```
 
+
 ## Populate the model with data
 
+We now have a dimensional model consisting of three dimensions, but no facts. To
+populate the model with facts, we simply pass the model and the original data 
+frames to the function `dm_refresh`.
 
 
+```{r, eval=T}
+# Specify the data frames which the model was built from
+facts <- list(
+  fct_email = email_metrics, 
+  fct_campaign = campaign_metrics,
+  fct_web = web_metrics
+)
+
+# Populate the model with data
+dm <- dm_refresh(dm, facts)
+
+str(dm)
+```
+The model now contains all the data from the three data frames (the source data) 
+organized as a dimensional model. 
+
+Notice how the refresh function has added not only three fact tables, but also 
+new rows to the dimensions. The reason is that the initial model was based only 
+on a sample of source data. When adding the entire datasets using the refresh 
+function, the dimensions are updated with rows new to the model.
+
+Notice also how the function handles shared dimension. Two of the fact tables 
+(`fct_campaign` and `fct_web`) share the `dim_channel` dimension. In other words, 
+the function inserts this dimension's primary key (`channel_key`) into both of 
+these fact tables. It automatically identifies how to do so by comparing source 
+data and the existing dimensions in the model.
+
+To save the result as csv files:
+
+```{r, eval=T}
+dm_write_csv(dm, "my-folder")
+
+list.files(path = "my-folder", recursive = TRUE)
+
+```
+
+The `dm_write_csv` function saves the result in two sub-directories `dimensions` 
+and `fact_tables`. It will always overwrite the files and, therefore, is not 
+meant for incremental refresh.
+
+
+## Incremental refresh
+
+To refresh your model incrementally, simply feed the model with the newest 
+source data followed by `dm_write_parquet`.
+
+Let's simulate how this would work.
+
+```{r, eval=T}
+
+dates <- seq.Date(min(web_metrics$date), max(web_metrics$date), "day")
+
+# i=dates[3]
+
+# for (i in dates) {
+#   
+#   new_source_data <- web_metrics[web_metrics$date == i,]
+#   
+#   facts <- list(
+#     fct_email = email_metrics, 
+#     fct_campaign = campaign_metrics,
+#     fct_web = web_metrics
+#     )
+#   
+#   dm <- dm_refresh(dm, facts)
+#   
+#   dm_write_parquet(dm, "my-incremental-model", partitioning = "date")
+# }
+
+
+# dm_write_csv(dm, "my-folder")
+# 
+# list.files(path = "my-folder", recursive = TRUE)
+
+```
 
 
 ## Example
