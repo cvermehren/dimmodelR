@@ -13,6 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+<!-- <img src="man/figures/README-pressure-1.png" align="right" /> -->
+
+![alt text here]("man/figures/README-pressure-1.png)
+
 
 # dimmodelR
 

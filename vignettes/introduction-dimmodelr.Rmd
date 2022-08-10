@@ -2,7 +2,7 @@
 title: "Introduction to dimmodelR"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{creating-a-dimensional-model}
+  %\VignetteIndexEntry{Introduction to dimmodelR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,17 +14,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-<!-- ```{r setup} -->
-<!-- library(dimmodelR) -->
-<!-- ``` -->
-
 Business-intelligence tools such as Power BI, Tableau and Qlik work best if the 
-data they connect to or import are organized as a so-called [dimensional model](https://en.wikipedia.org/wiki/Dimensional_modeling). 
+data they connect to are organized as [dimensional models](https://en.wikipedia.org/wiki/Dimensional_modeling). 
+
+Dimensional models are typically derived from flat tables, which are split into 
+"facts" and "dimensions". Fact tables contain columns to be aggregated or 
+summarized (e.g. revenues or costs), whereas dimensions are used to group or 
+filter the result.
+
+
+
+
+###
+
 While it is possible for these tools to process data from flat tables, a 
 dimensional model performs better, scales better and is easier to extend with
 unexpected new data.
 
+<!-- # -->
+<!-- ```{r echo=FALSE, fig.align='center', fig.cap='', out.width='10%'} -->
+<!-- knitr::include_graphics('cve_linkedin.png') -->
+<!-- ``` -->
 
+
+
+<!-- ![Caption for the picture.](/vignettes/figures/README-pressure-1.png) -->
 
 
 

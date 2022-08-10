@@ -1,5 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- <img src="man/figures/README-pressure-1.png" align="right" /> -->
+
+![alt text here](%22man/figures/README-pressure-1.png)
 
 # dimmodelR
 
