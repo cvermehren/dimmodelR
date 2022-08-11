@@ -5,7 +5,7 @@
 \alias{email_metrics}
 \title{Demo Data: Email Metrics}
 \format{
-An object of class \code{data.frame} with 376 rows and 6 columns.
+An object of class \code{data.frame} with 376 rows and 8 columns.
 }
 \usage{
 email_metrics

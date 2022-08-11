@@ -5,7 +5,7 @@
 \alias{campaign_metrics}
 \title{Demo Data: Campaign Metrics}
 \format{
-An object of class \code{data.frame} with 449 rows and 7 columns.
+An object of class \code{data.frame} with 449 rows and 9 columns.
 }
 \usage{
 campaign_metrics
