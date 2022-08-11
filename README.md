@@ -7,17 +7,17 @@
 <!-- badges: end -->
 
 Business-intelligence tools such as Power BI, Tableau and Qlik work best
-when they consume data organized as a [dimensional
-model](https://en.wikipedia.org/wiki/Dimensional_modeling). A common
-task before using these tools is therefore to transform data according
-to this model’s design principles. This is also know as [star
+when data are organized according to [dimensional
+modeling](https://en.wikipedia.org/wiki/Dimensional_modeling). A common
+task before using these tools is therefore to transform data using this
+technique. This is also know as [star
 schema](https://en.wikipedia.org/wiki/Star_schema) design.
 
 The `dimmodelR` package aims to make this easy using R. It provides a
-set of functions for automating the creation and refreshment of a
-central data model consisting of multiple [fact
-tables](https://en.wikipedia.org/wiki/Fact_table) referencing a set of
-shared
+set of functions for creating and refreshing a central data model
+consisting of multiple [fact
+tables](https://en.wikipedia.org/wiki/Fact_table) which reference a set
+of shared
 [dimensions](https://en.wikipedia.org/wiki/Dimension_(data_warehouse)#Dimension_table).
 
 ## Installation
@@ -63,10 +63,10 @@ str(campaign_metrics)
 ```
 
 Typically fact tables are formed by numerical columns, while dimension
-columns are character type.
+columns are of type character.
 
-To define a star schema we only need to specify the dimensions. Fact
-tables are added later when populating the model with data.
+To define a star schema we only need to specify dimensions. Fact tables
+are added later when the model is populated with data.
 
 ``` r
 # Define dimensions
@@ -86,8 +86,8 @@ str(dm)
 #>  - attr(*, "class")= chr "dm_model"
 ```
 
-The function `dm_model()` has extracted one dimension, `dim_channel`,
-from the data frame and added a [surrogate
+The function `dm_model()` has now extracted one dimension,
+`dim_channel`, from the data frame and added a [surrogate
 key](https://en.wikipedia.org/wiki/Surrogate_key) column named
 `channel_key`.
 
@@ -97,7 +97,7 @@ will be inserted into the fact table as a [foreign
 key](https://en.wikipedia.org/wiki/Foreign_key) when we populate the
 model with data.
 
-Before we do so, let’s extend the model with a few more dimensions using
+Before doing so, let’s extend the model with a few more dimensions using
 the `web_metrics` and `email_metrics` datasets.
 
 ``` r
@@ -120,8 +120,8 @@ str(web_metrics)
 ```
 
 The `web_metrics` dataset introduces two new dimension columns:
-`view_name` and `country`. These can be added to the model as long as we
-remember to use the model itself (`dm`) as an argument in the function.
+`view_name` and `country`. These can be added to the model by including
+the model itself as an argument in `dm_model()`.
 
 ``` r
 dimensions = list(
@@ -179,12 +179,14 @@ str(dm)
 
 We now have a dimensional model consisting of three dimensions, but no
 facts. To populate the model with facts, you only need to pass the model
-and a named list of source data to `dm_refresh()`. The function will
-automatically match the source data with dimensions in the model and
-extract fact tables accordingly.
+and its source data to `dm_refresh()`.
+
+The function will automatically match the source data with dimensions in
+the model and extract fact tables accordingly.
 
 ``` r
-# Make a named list of source data from which fact tables should be extracted
+# Make a named list of data frames (source data) from which fact tables should 
+# be extracted
 facts <- list(
   fct_email = email_metrics, 
   fct_campaign = campaign_metrics,
@@ -254,14 +256,13 @@ organized as a dimensional model.
 The refresh function has added not only three fact tables, but also new
 rows to the dimensions. The initial model is based only on a sample of
 source data. When adding the entire datasets using the refresh function,
-the dimensions are updated with rows that are new to the model.
+its dimensions are updated with rows that are new to the model.
 
 The function also handles shared dimension. Two of the fact tables
-(`fct_campaign` and `fct_web`) share the `dim_channel` dimension. In
-other words, the function inserts this dimension’s primary key
-(`channel_key`) into both of these fact tables. It automatically
-identifies how to do so by comparing source data and existing dimensions
-in the model.
+(`fct_campaign` and `fct_web`) share the `dim_channel` dimension. The
+function inserts this dimension’s primary key (`channel_key`) into both
+of these fact tables. It automatically identifies how to do so by
+comparing source data and existing dimensions in the model.
 
 To save the result as csv files:
 
