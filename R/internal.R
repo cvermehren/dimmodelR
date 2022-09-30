@@ -17,7 +17,7 @@ dm_dim_refresh <- function(old_dim, new_fact) {
 
   # Useful variables
   fact_rows <- nrow(new_fact) # nrows for testing purpose
-  key_name <- names(old_dim)[names(old_dim) %like% "_key"]
+  key_name <- names(old_dim)[ endsWith(names(old_dim), "_key")]
   shared_cols <- intersect(names(old_dim), names(new_fact))
 
   # Check if old_dim is unique with only shared_cols
