@@ -15,7 +15,7 @@ Imports:
     lubridate,
     data.table
 Depends: 
-    R (>= 4.1.3)
+    R (>= 4.1)
 Suggests:
     arrow,
     testthat (>= 3.0.0)
