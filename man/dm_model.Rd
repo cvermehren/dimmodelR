@@ -16,7 +16,9 @@ created.}
 \item{dm}{A `dm_model` object, i.e. an object returned by `dm_model`
 or `dm_model_refresh`.}
 
-\item{dm_path}{If not `NULL` model will be saved as parquet}
+\item{dm_path}{The file path for saving the model. If used the model will be
+saved as parquet files and the the model returned will be a list of arrow
+datasets.}
 }
 \value{
 A `dm_model` object containing a list of dimension tables with primary
