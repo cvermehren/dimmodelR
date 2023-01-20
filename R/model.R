@@ -8,7 +8,9 @@
 #'   `flat_table` each of which should form a dimension table.
 #' @param dm A `dm_model` object, i.e. an object returned by `dm_model`
 #'   or `dm_model_refresh`.
-#' @param return_facts Should facts be returned?
+#' @param dm_path The file path for saving the model. If used the model will be
+#'   saved as parquet files and the the model returned will be a list of arrow
+#'   datasets.
 #'
 #' @import data.table
 #' @return A `dm_model` object containing a list of dimension tables with primary
@@ -24,17 +26,13 @@
 #'
 #' }
 dm_model <- function(flat_table,
-                            dimension_columns,
-                            dm = NULL,
-                            return_facts = FALSE) {
+                     dimension_columns,
+                     dm = NULL,
+                     dm_path = NULL) {
 
-  if(!is.data.frame(flat_table)) stop(
-    "flat_table must be a data.frame!\n"
-  )
+  if(!is.data.frame(flat_table)) stop("flat_table must be a data.frame!\n")
 
-  if(!is.list(dimension_columns)) stop(
-    "dimension_columns must be a list object!\n"
-  )
+  if(!is.list(dimension_columns)) stop("dimension_columns must be a list object!\n")
 
   if(is.null(names(dimension_columns))) stop(
     "dimension_columns must be a named list, where each element is a vector of
@@ -54,18 +52,17 @@ dm_model <- function(flat_table,
     "Dimension column names (passed to `dimension_columns`) must not end with
     '_key'. This column suffix is reserved for the dimension's primary key
     column.\n"
-    )
+  )
 
   if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
     "dm must be a `dm_model` object, i.e. an object returned by
     `dm_model` or `dm_model_refresh`.\n"
-    )
+  )
 
   data.table::setDT(flat_table)
 
-  # Take sample of flat_table unless it should be returned
-  if(!return_facts) flat_table <- flat_table[1:500]
-
+  # Take sample of flat_table
+  flat_table <- flat_table[1:500]
   flat_cols <- names(flat_table)
 
   # Make all dimension columns character
@@ -75,11 +72,12 @@ dm_model <- function(flat_table,
 
     if(!all(character_cols %in% flat_cols)) stop(
       "dimension_columns must be columns of `flat_table`!\n"
-      )
+    )
 
     flat_table[, (character_cols) := lapply(.SD, as.character), .SDcols = character_cols]
   }
 
+  # Format and save dim
   for(i in seq_along(dimension_columns)) {
 
     dim_name <- names(dimension_columns[i])
@@ -104,40 +102,33 @@ dm_model <- function(flat_table,
     stopifnot(max(dim[,get(key_name)]) == nrow(dim))
     stopifnot(length(unique(dim[,get(key_name)])) == nrow(dim))
 
+    data.table::setDF(dim)
+
+    # Write to parquet
+    if(!is.null(dm_path)) {
+      dm_path_tmp <- file.path(dm_path, "dimensions", dim_name)
+      arrow::write_dataset(dim, dm_path_tmp)
+      dim <- arrow::open_dataset(dm_path_tmp)
+    }
+
     # Add dim to dim_list
     if(!exists("dim_list")) dim_list <- list()
     dim_list[[names(dimension_columns[i])]] <- dim
 
-    # Add key to fact via merge & remove dims
-    flat_table <- merge(flat_table, dim_list[[i]], all.x = T, all.y =  T, by = dim_cols)
-    flat_table[, (dim_cols) := NULL]
-
-    # Reorder columns & set to df
-    data.table::setcolorder(
-      flat_table,
-      c(key_name, setdiff(names(flat_table), key_name))
-      )
-
-    data.table::setDF(dim)
-
   }
-
-  data.table::setDF(flat_table)
 
   if(!is.null(dm)) {
 
     for(i in seq_along(dim_list)) {
       name <- names(dim_list)[i]
       dm$dimensions[[name]] <- dim_list[[i]]
-      }
+    }
 
   } else {
 
     dm <- structure(list(dimensions = dim_list), class = "dm_model")
 
-    }
-
-  if(return_facts) dm$fact <- flat_table
+  }
 
   return(dm)
 

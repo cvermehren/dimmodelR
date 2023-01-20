@@ -4,7 +4,7 @@
 \alias{dm_model}
 \title{Create a dimensional model}
 \usage{
-dm_model(flat_table, dimension_columns, dm = NULL, return_facts = FALSE)
+dm_model(flat_table, dimension_columns, dm = NULL, dm_path = NULL)
 }
 \arguments{
 \item{flat_table}{The data frame from which the dimensional model should be
@@ -16,7 +16,7 @@ created.}
 \item{dm}{A `dm_model` object, i.e. an object returned by `dm_model`
 or `dm_model_refresh`.}
 
-\item{return_facts}{Should facts be returned?}
+\item{dm_path}{If not `NULL` model will be saved as parquet}
 }
 \value{
 A `dm_model` object containing a list of dimension tables with primary

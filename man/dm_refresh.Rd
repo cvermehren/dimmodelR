@@ -2,14 +2,18 @@
 % Please edit documentation in R/refresh.R
 \name{dm_refresh}
 \alias{dm_refresh}
-\title{Refresh a dimension}
+\title{Save mode as csv}
 \usage{
-dm_refresh(dm, new_fact_list)
+dm_refresh(dm, new_fact_list, dm_path = NULL, ...)
 }
 \arguments{
 \item{dm}{A model object}
 
 \item{new_fact_list}{A fact table}
+
+\item{dm_path}{A fact table}
+
+\item{...}{Arguments passed to data.table::fwrite}
 }
 \value{
 A data frame
@@ -21,7 +25,7 @@ This is a description.
 
 \dontrun{
 
-dm_refresh(old_dim, new_fact)
+dm_save(old_dim, new_fact)
 
 
 }
