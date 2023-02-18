@@ -30,7 +30,13 @@ dm_model <- function(flat_table,
                      dm = NULL,
                      dm_path = NULL) {
 
-  if(!is.data.frame(flat_table)) stop("flat_table must be a data.frame!\n")
+  # Test if flat table is an Arrow dataset
+  isarrow <- all(
+    inherits(flat_table, "ArrowObject"),
+    inherits(flat_table, "FileSystemDataset")
+  )
+
+  if(!(is.data.frame(flat_table) | isarrow)) stop("flat_table must be a data.frame or an Arrow dataset!\n")
 
   if(!is.list(dimension_columns)) stop("dimension_columns must be a list object!\n")
 
@@ -58,6 +64,8 @@ dm_model <- function(flat_table,
     "dm must be a `dm_model` object, i.e. an object returned by
     `dm_model` or `dm_model_refresh`.\n"
   )
+
+  if(isarrow) flat_table <- dplyr::collect(utils::head(flat_table))
 
   data.table::setDT(flat_table)
 

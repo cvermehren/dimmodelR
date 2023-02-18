@@ -15,7 +15,8 @@ Imports:
     lubridate,
     data.table,
     arrow,
-    dplyr
+    dplyr,
+    utils
 Depends: 
     R (>= 4.1)
 Suggests:

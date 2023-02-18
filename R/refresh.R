@@ -27,6 +27,13 @@ dm_refresh_one_fact <- function(dm, new_fact, fact_name, dm_path = NULL) {
       )
     if(isarrow) old_dim <- dplyr::collect(old_dim)
 
+    # If fact is an Arrow dataset, collect into memory
+    is_fact_arrow <- all(
+      inherits(new_fact, "ArrowObject"),
+      inherits(new_fact, "FileSystemDataset")
+    )
+    if(is_fact_arrow) new_fact <- dplyr::collect(new_fact)
+
     # Check if old_dim is unique with only shared_cols
     no_match <- dm_check_dim_match(old_dim, new_fact)
 
