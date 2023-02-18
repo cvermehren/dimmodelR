@@ -117,12 +117,15 @@ dm_refresh <- function(dm, new_fact_list, dm_path = NULL, ...) {
       dm_path = dm_path
     )
 
-    # Save as parquet
-    path_tmp <- file.path(dm_path, "facts", fact_names[i])
-    arrow::write_dataset(dm$fact_tables[[fact_names[i]]], path_tmp, ...)
+    if(!is.null(dm_path)) {
+      # Save as parquet
+      path_tmp <- file.path(dm_path, "facts", fact_names[i])
+      arrow::write_dataset(dm$fact_tables[[fact_names[i]]], path_tmp, ...)
 
-    # Open Arrow dataset and add it to model
-    dm$fact_tables[[fact_names[i]]] <- arrow::open_dataset(path_tmp)
+      # Open Arrow dataset and add it to model
+      dm$fact_tables[[fact_names[i]]] <- arrow::open_dataset(path_tmp)
+    }
+
 
   }
 
