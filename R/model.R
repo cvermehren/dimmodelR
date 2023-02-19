@@ -141,3 +141,60 @@ dm_model <- function(flat_table,
   return(dm)
 
 }
+
+
+#' Load a dimensional model from Parquet files
+#'
+#' This is a description.
+#'
+#' @param dm_path Path to the dimensional model
+#'
+#' @return A `dm_model` object containing a list of dimension tables with primary
+#'   keys pointing to the rows of `flat_table`.
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' dm_model_load("/path/to/my/dim_model")
+#'
+#'
+#' }
+dm_model_load <- function(dm_path) {
+
+  # Open dimension datasets
+  dim_paths <- list.dirs(path = paste0(dm_path, "/dimensions"), recursive = FALSE)
+  dim_names <- basename(dim_paths)
+
+  dim_list <- list()
+
+  for (i in seq_along(dim_paths)) {
+
+    dim_list[[dim_names[i]]] <- arrow::open_dataset(dim_paths[i])
+  }
+
+
+  # Open facts datasets
+  fact_paths <- list.dirs(path = paste0(dm_path, "/facts"), recursive = FALSE)
+  fact_names <- basename(fact_paths)
+
+  fact_list <- list()
+
+  for (i in seq_along(fact_paths)) {
+
+    fact_list[[fact_names[i]]] <- arrow::open_dataset(fact_paths[i])
+  }
+
+  # Create dm_model object
+  dm <- structure(
+    list(
+      dimensions = dim_list,
+      facts = fact_list
+    ),
+    class = "dm_model"
+  )
+
+  return(dm)
+
+}
