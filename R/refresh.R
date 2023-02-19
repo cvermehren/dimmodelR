@@ -255,3 +255,55 @@ dm_write_csv <- function(dm, path, ...) {
   }
 
 }
+
+#' Get new facts
+#'
+#' This is a description.
+#'
+#' @param dm A model object
+#' @param fct_name A fact table
+#' @param flat_path Arguments passed to data.table::fwrite
+#' @param flat_name A name
+#' @param date_col The name of the date column (must be the same in both flat
+#'   and fact table)
+#'
+#' @return A data frame
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' dm_save(old_dim, new_fact)
+#'
+#'
+#' }
+dm_newfact <- function(dm,
+                       fct_name,
+                       flat_path,
+                       flat_name = NULL,
+                       date_col = "date") {
+
+  if(is.null(flat_name)) {
+    flat_name <- basename(flat_path)
+  } else {
+    flat_path <- file.path(flat_path, flat_name)
+  }
+
+  fct <- dm[["facts"]][[fct_name]]
+
+  oldmax <- fct |>
+    dplyr::select(date = dplyr::all_of(date_col)) |>
+    dplyr::summarise(maxdate = max(date)) |>
+    dplyr::collect() |>
+    dplyr::pull()
+
+  flat_ds <- arrow::open_dataset(flat_path)
+
+  new_fact <- flat_ds |>
+    dplyr::filter(date > oldmax) |>
+    dplyr::collect()
+
+  return(new_fact)
+
+}
