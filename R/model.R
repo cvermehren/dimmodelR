@@ -69,7 +69,8 @@ dm_model <- function(flat_table,
 
   if(isarrow) {
     frac <- 2000/nrow(flat_table)
-    flat_sample <-  flat_table |>
+    frac <- ifelse(frac >= 0, 0.5, frac)
+    flat_table <-  flat_table |>
       arrow::map_batches(~ arrow::as_record_batch(dplyr::sample_frac(as.data.frame(.), frac))) |>
       dplyr::collect()
     }
