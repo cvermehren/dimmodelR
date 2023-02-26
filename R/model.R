@@ -65,7 +65,14 @@ dm_model <- function(flat_table,
     `dm_model` or `dm_model_refresh`.\n"
   )
 
-  if(isarrow) flat_table <- dplyr::collect(utils::head(flat_table))
+  #if(isarrow) flat_table <- dplyr::collect(utils::head(flat_table))
+
+  if(isarrow) {
+    frac <- 2000/nrow(flat_table)
+    flat_sample <-  flat_table |>
+      arrow::map_batches(~ arrow::as_record_batch(dplyr::sample_frac(as.data.frame(.), frac))) |>
+      dplyr::collect()
+    }
 
   data.table::setDT(flat_table)
 
