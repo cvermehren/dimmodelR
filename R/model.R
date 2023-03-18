@@ -1,30 +1,67 @@
 #' Create a dimensional model
 #'
-#' This is a description.
+#' This function creates a dimensional model from a data frame (i.e., the 'flat
+#' table').
 #'
-#' @param flat_table The data frame from which the dimensional model should be
-#'   created.
+#' A complete dimensional model consists of a set of dimension tables that
+#' reference one or more fact tables. However, the dm_model function only
+#' creates dimension tables, not fact tables. It is meant as the first step in
+#' building a complete model. Fact tables are created and added to the model
+#' later using the \code{\link{dm_refresh}} function.
+#'
+#' Moreover, the dm_model function builds dimension tables using only a sample
+#' of the flat table. Even if you pass a very large flat table to the function,
+#' it returns dimension tables with only a few rows. If you work with very large
+#' flat tables that do not fit into memory, you can pass them to the function as
+#' Arrow datasets pointing to a folder with Parquet files. If you specify the
+#' dm_path argument, the dm_model function will save the returned model itself
+#' as Parquet files organized in a sub-folder called 'dimensions'. This folder
+#' can be loaded later as an Arrow dataset using the \code{\link{dm_load}}
+#' function.
+#'
+#' The dm_model can include dimensions from multiple flat tables. This is done
+#' by first initiating the model with a single flat table. This will return a
+#' dm_model object ready for expansion. To expand the model, run the dm_model
+#' function again using a new flat table and the returned dm_model object as
+#' arguments. If some of the columns in the new flat table intersect with an
+#' existing dimension in the model, and if you want this dimension to be updated
+#' using these columns, simply specify them in the dimension_columns argument
+#' using the same dimension name as the existing dimension.
+#'
+#' @param flat_table A data frame or an Arrow dataset from which the dimensional
+#'   model should be created.
 #' @param dimension_columns A named list with vectors of column names from
 #'   `flat_table` each of which should form a dimension table.
-#' @param dm A `dm_model` object, i.e. an object returned by `dm_model`
-#'   or `dm_model_refresh`.
+#' @param dm A `dm_model` object, i.e. an object returned by `dm_model` or
+#'   `dm_model_refresh`, used when adding more dimensions to the model by
+#'   passing additional flat tables to the function.
 #' @param dm_path The file path for saving the model. If used the model will be
 #'   saved as parquet files and the the model returned will be a list of arrow
 #'   datasets.
 #'
 #' @import data.table
 #' @return A `dm_model` object containing a list of dimension tables with primary
-#'   keys pointing to the rows of `flat_table`.
+#'   keys.
+#' @seealso \code{\link{dm_refresh}}
 #' @export
 #'
 #' @examples
 #'
-#' \dontrun{
+#' library(dimmodelR)
 #'
-#' dm_model(flat_table, dimension_columns)
+#' data(campaign_metrics)
 #'
+#' # Define dimensions as a named list of column names from campaign_metrics
+#' dimensions = list(dim_channel = c("source", "medium", "campaign"))
 #'
-#' }
+#' # Initiate the model
+#' dm <- dm_model(campaign_metrics, dimensions)
+#'
+#' # The `dm` object, the model, now holds one dimension, called `dim_channel`,
+#' # consisting of the unique combination of the columns 'source', 'medium' and
+#' # 'campaign' from the data frame `campaign_metrics`. A surrogate key column
+#' # named `channel_key` has been added which will be used to create the fact
+#' # table when the model is populated with data using dm_refresh.
 dm_model <- function(flat_table,
                      dimension_columns,
                      dm = NULL,
@@ -169,7 +206,7 @@ dm_model <- function(flat_table,
 #'
 #'
 #' }
-dm_model_load <- function(dm_path) {
+dm_load <- function(dm_path) {
 
   # Open dimension datasets
   dim_paths <- list.dirs(path = paste0(dm_path, "/dimensions"), recursive = FALSE)

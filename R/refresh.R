@@ -1,4 +1,4 @@
-
+# Internal function
 dm_refresh_one_fact <- function(dm, new_fact, fact_name, dm_path = NULL) {
 
   if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
