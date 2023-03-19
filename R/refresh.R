@@ -109,6 +109,15 @@ dm_refresh_one_fact <- function(dm, new_fact, fact_name, dm_path = NULL) {
 #' }
 dm_refresh <- function(dm, new_fact_list, dm_path = NULL, ...) {
 
+  if(!is.null(dm) & !inherits(dm, "dm_model")) stop(
+    "dm must be a `dm_model` object, i.e. an object returned by
+    `dm_model` or `dm_refresh`.\n"
+  )
+
+  if( !is.null(dm_path) & !is.character(dm_path)) stop("new_fact_list must be a list object!\n")
+
+  if(!is.list(new_fact_list)) stop("new_fact_list must be a list object!\n")
+
   # Get names of fact tables
   fact_names <- names(new_fact_list)
 
