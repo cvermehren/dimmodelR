@@ -7,21 +7,67 @@
 dm_load(dm_path)
 }
 \arguments{
-\item{dm_path}{Path to the dimensional model}
+\item{dm_path}{string path referencing the directory to which you have saved
+your model using \code{\link{dm_model}} or \code{\link{dm_refresh}}.}
 }
 \value{
-A `dm_model` object containing a list of dimension tables with primary
-  keys pointing to the rows of `flat_table`.
+A \code{dm_model} object containing a list of dimension tables with primary
+  keys pointing to the rows of \code{flat_table}.
 }
 \description{
-This is a description.
+This function makes it easy to load a dimensional model previously built
+with \code{\link{dm_model}} and saved as Parquet files. The model is loaded
+as Arrow datasets.
+}
+\details{
+Saving your model as Parquet files is practical if you are working with
+big data. When it is time to update your model with new rows from
+\code{flat_table}, use \code{\link{dm_load}} before passing it to
+\code{\link{dm_refresh}}.
 }
 \examples{
 
 \dontrun{
 
-dm_model_load("/path/to/my/dim_model")
+# Let's first build a model and save it as Parquet files
 
+# Create temp files to write files to
+web_path <- tempfile()
+
+# Write as Parquet to temp files
+web_fs <- arrow::write_dataset( web_metrics, web_path)
+
+# Open the files as Arrow datasets
+web_ds <- arrow::open_dataset(web_path)
+
+# Define dimension columns
+dimension_columns <- list(
+  dim_channel = c("source", "medium", "campaign"),
+  dim_market = c("view_name", "country")
+  )
+
+# Set the path of the directory you want to write the dimensional model to
+model_path <- file.path(tempfile(), "my-model")
+
+# Initiate the mode without loading into memory (using the dm_path argument)
+dm <- dm_model(
+  flat_table = web_ds,
+  dimension_columns = dimension_columns,
+  dm_path = model_path
+  )
+
+# Populate with data
+dm <- dm_refresh(
+  dm = dm,
+  new_fact_list = list(fct_web = web_ds),
+  dm_path = model_path
+  )
+
+# Check the files
+list.files(model_path, recursive = TRUE)
+
+# Load the model when it's time to add new rows to dimension and fact tables
+mymodel <- dm_load(model_path)
 
 }
 }

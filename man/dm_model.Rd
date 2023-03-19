@@ -17,43 +17,45 @@ model should be created.}
 `dm_model_refresh`, used when adding more dimensions to the model by
 passing additional flat tables to the function.}
 
-\item{dm_path}{The file path for saving the model. If used the model will be
-saved as parquet files and the the model returned will be a list of arrow
-datasets.}
+\item{dm_path}{string path referencing a directory to write the dimensional
+model to (directory will be created if it does not exist). If used the model
+will be saved as parquet files and the the model returned will be a list of
+arrow datasets.}
 }
 \value{
-A `dm_model` object containing a list of dimension tables with primary
-  keys.
+A \code{dm_model} object containing a list of dimension tables (data
+  frames) with primary keys. If \code{dm_path} is used the returned object
+  will be a list with Arrow datasets (useful when working with big data).
 }
 \description{
-This function creates a dimensional model from a data frame (i.e., the 'flat
-table').
+This function creates a dimensional model from a data frame (referred to as
+'flat table').
 }
 \details{
 A complete dimensional model consists of a set of dimension tables that
-reference one or more fact tables. However, the dm_model function only
+reference one or more fact tables. However, \code{\link{dm_model}} only
 creates dimension tables, not fact tables. It is meant as the first step in
 building a complete model. Fact tables are created and added to the model
-later using the \code{\link{dm_refresh}} function.
+later using \code{\link{dm_refresh}}.
 
-Moreover, the dm_model function builds dimension tables using only a sample
+Moreover, \code{\link{dm_model}} builds dimension tables using only a sample
 of the flat table. Even if you pass a very large flat table to the function,
-it returns dimension tables with only a few rows. If you work with very large
-flat tables that do not fit into memory, you can pass them to the function as
-Arrow datasets pointing to a folder with Parquet files. If you specify the
-dm_path argument, the dm_model function will save the returned model itself
-as Parquet files organized in a sub-folder called 'dimensions'. This folder
-can be loaded later as an Arrow dataset using the \code{\link{dm_load}}
-function.
+it returns dimension tables with only a few rows. If you work with big data
+that do not fit into memory, you can pass them to the function as Arrow
+datasets pointing to a folder with Parquet files. If you specify the
+\code{dm_path} argument, \code{\link{dm_model}} will save the returned model
+itself as Parquet files organized in a sub-folder called 'dimensions'. This
+folder can be loaded later as an Arrow dataset using \code{\link{dm_load}}.
 
-The dm_model can include dimensions from multiple flat tables. This is done
-by first initiating the model with a single flat table. This will return a
-dm_model object ready for expansion. To expand the model, run the dm_model
-function again using a new flat table and the returned dm_model object as
-arguments. If some of the columns in the new flat table intersect with an
-existing dimension in the model, and if you want this dimension to be updated
-using these columns, simply specify them in the dimension_columns argument
-using the same dimension name as the existing dimension.
+\code{\link{dm_model}} can include dimensions from multiple flat tables. This
+is done by first initiating the model with a single flat table. This will
+return a \code{dm_model} object ready for expansion. To expand the model, run
+\code{dm_model} again using a new flat table and the returned \code{dm_model}
+object as arguments. If some of the columns in the new flat table intersect
+with an existing dimension in the model, and if you want this dimension to be
+updated using these columns, simply specify them in the
+\code{dimension_columns} argument using the same dimension name as the
+existing dimension.
 }
 \examples{
 

@@ -1,32 +1,32 @@
 #' Create a dimensional model
 #'
-#' This function creates a dimensional model from a data frame (i.e., the 'flat
-#' table').
+#' This function creates a dimensional model from a data frame (referred to as
+#' 'flat table').
 #'
 #' A complete dimensional model consists of a set of dimension tables that
-#' reference one or more fact tables. However, the dm_model function only
+#' reference one or more fact tables. However, \code{\link{dm_model}} only
 #' creates dimension tables, not fact tables. It is meant as the first step in
 #' building a complete model. Fact tables are created and added to the model
-#' later using the \code{\link{dm_refresh}} function.
+#' later using \code{\link{dm_refresh}}.
 #'
-#' Moreover, the dm_model function builds dimension tables using only a sample
+#' Moreover, \code{\link{dm_model}} builds dimension tables using only a sample
 #' of the flat table. Even if you pass a very large flat table to the function,
-#' it returns dimension tables with only a few rows. If you work with very large
-#' flat tables that do not fit into memory, you can pass them to the function as
-#' Arrow datasets pointing to a folder with Parquet files. If you specify the
-#' dm_path argument, the dm_model function will save the returned model itself
-#' as Parquet files organized in a sub-folder called 'dimensions'. This folder
-#' can be loaded later as an Arrow dataset using the \code{\link{dm_load}}
-#' function.
+#' it returns dimension tables with only a few rows. If you work with big data
+#' that do not fit into memory, you can pass them to the function as Arrow
+#' datasets pointing to a folder with Parquet files. If you specify the
+#' \code{dm_path} argument, \code{\link{dm_model}} will save the returned model
+#' itself as Parquet files organized in a sub-folder called 'dimensions'. This
+#' folder can be loaded later as an Arrow dataset using \code{\link{dm_load}}.
 #'
-#' The dm_model can include dimensions from multiple flat tables. This is done
-#' by first initiating the model with a single flat table. This will return a
-#' dm_model object ready for expansion. To expand the model, run the dm_model
-#' function again using a new flat table and the returned dm_model object as
-#' arguments. If some of the columns in the new flat table intersect with an
-#' existing dimension in the model, and if you want this dimension to be updated
-#' using these columns, simply specify them in the dimension_columns argument
-#' using the same dimension name as the existing dimension.
+#' \code{\link{dm_model}} can include dimensions from multiple flat tables. This
+#' is done by first initiating the model with a single flat table. This will
+#' return a \code{dm_model} object ready for expansion. To expand the model, run
+#' \code{dm_model} again using a new flat table and the returned \code{dm_model}
+#' object as arguments. If some of the columns in the new flat table intersect
+#' with an existing dimension in the model, and if you want this dimension to be
+#' updated using these columns, simply specify them in the
+#' \code{dimension_columns} argument using the same dimension name as the
+#' existing dimension.
 #'
 #' @param flat_table A data frame or an Arrow dataset from which the dimensional
 #'   model should be created.
@@ -35,13 +35,15 @@
 #' @param dm A `dm_model` object, i.e. an object returned by `dm_model` or
 #'   `dm_model_refresh`, used when adding more dimensions to the model by
 #'   passing additional flat tables to the function.
-#' @param dm_path The file path for saving the model. If used the model will be
-#'   saved as parquet files and the the model returned will be a list of arrow
-#'   datasets.
+#' @param dm_path string path referencing a directory to write the dimensional
+#'   model to (directory will be created if it does not exist). If used the model
+#'   will be saved as parquet files and the the model returned will be a list of
+#'   arrow datasets.
 #'
 #' @import data.table
-#' @return A `dm_model` object containing a list of dimension tables with primary
-#'   keys.
+#' @return A \code{dm_model} object containing a list of dimension tables (data
+#'   frames) with primary keys. If \code{dm_path} is used the returned object
+#'   will be a list with Arrow datasets (useful when working with big data).
 #' @seealso \code{\link{dm_refresh}}
 #' @export
 #'
@@ -247,20 +249,65 @@ dm_model <- function(flat_table,
 
 #' Load a dimensional model from Parquet files
 #'
-#' This is a description.
+#' This function makes it easy to load a dimensional model previously built
+#' with \code{\link{dm_model}} and saved as Parquet files. The model is loaded
+#' as Arrow datasets.
 #'
-#' @param dm_path Path to the dimensional model
+#' Saving your model as Parquet files is practical if you are working with
+#' big data. When it is time to update your model with new rows from
+#' \code{flat_table}, use \code{\link{dm_load}} before passing it to
+#' \code{\link{dm_refresh}}.
 #'
-#' @return A `dm_model` object containing a list of dimension tables with primary
-#'   keys pointing to the rows of `flat_table`.
+#' @param dm_path string path referencing the directory to which you have saved
+#'   your model using \code{\link{dm_model}} or \code{\link{dm_refresh}}.
+#'
+#' @return A \code{dm_model} object containing a list of dimension tables with primary
+#'   keys pointing to the rows of \code{flat_table}.
 #' @export
 #'
 #' @examples
 #'
 #' \dontrun{
 #'
-#' dm_model_load("/path/to/my/dim_model")
+#' # Let's first build a model and save it as Parquet files
 #'
+#' # Create temp files to write files to
+#' web_path <- tempfile()
+#'
+#' # Write as Parquet to temp files
+#' web_fs <- arrow::write_dataset( web_metrics, web_path)
+#'
+#' # Open the files as Arrow datasets
+#' web_ds <- arrow::open_dataset(web_path)
+#'
+#' # Define dimension columns
+#' dimension_columns <- list(
+#'   dim_channel = c("source", "medium", "campaign"),
+#'   dim_market = c("view_name", "country")
+#'   )
+#'
+#' # Set the path of the directory you want to write the dimensional model to
+#' model_path <- file.path(tempfile(), "my-model")
+#'
+#' # Initiate the mode without loading into memory (using the dm_path argument)
+#' dm <- dm_model(
+#'   flat_table = web_ds,
+#'   dimension_columns = dimension_columns,
+#'   dm_path = model_path
+#'   )
+#'
+#' # Populate with data
+#' dm <- dm_refresh(
+#'   dm = dm,
+#'   new_fact_list = list(fct_web = web_ds),
+#'   dm_path = model_path
+#'   )
+#'
+#' # Check the files
+#' list.files(model_path, recursive = TRUE)
+#'
+#' # Load the model when it's time to add new rows to dimension and fact tables
+#' mymodel <- dm_load(model_path)
 #'
 #' }
 dm_load <- function(dm_path) {
