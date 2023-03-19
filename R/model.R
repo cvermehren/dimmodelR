@@ -49,6 +49,8 @@
 #'
 #' library(dimmodelR)
 #'
+#' # Load demo data
+#' data(campaign_metrics)
 #' data(campaign_metrics)
 #'
 #' # Define dimensions as a named list of column names from campaign_metrics
@@ -57,11 +59,66 @@
 #' # Initiate the model
 #' dm <- dm_model(campaign_metrics, dimensions)
 #'
-#' # The `dm` object, the model, now holds one dimension, called `dim_channel`,
-#' # consisting of the unique combination of the columns 'source', 'medium' and
-#' # 'campaign' from the data frame `campaign_metrics`. A surrogate key column
-#' # named `channel_key` has been added which will be used to create the fact
-#' # table when the model is populated with data using dm_refresh.
+#' # Add dimensions from web_metrics
+#' dimensions = list(
+#'   dim_channel = c("source", "medium", "campaign"),
+#'   dim_market = c("view_name", "country")
+#'   )
+#'
+#' # Expand the model using the model itself (`dm`) as an argument
+#' dm <- dm_model(web_metrics, dimensions, dm)
+#'
+#' \dontrun{
+#'
+#' # When working with big data, use the arrow package
+#'
+#' library(arrow)
+#'
+#' # Let's imagine campaign_metrics is too big to fit into memory
+#' flattable <- tempfile()
+#' arrow::write_dataset( campaign_metrics, flattable)
+#'
+#' # Set the path of the dimensional model you are going to create
+#' model_path <- file.path(getwd(), "my-model")
+#'
+#' # Open campaign_metrics as an Arrow dataset
+#' # (imagining it is too big for memory)
+#' cam <- arrow::open_dataset(flattable)
+#'
+#' # Define dimension columns
+#' dimension_columns <- list(dim_channel = c("source", "medium", "campaign"))
+#'
+#' # Initiate the mode without loading into memory (using the dm_path argument)
+#' dm <- dm_model(
+#'   flat_table = cam,
+#'   dimension_columns = dimension_columns,
+#'   dm = NULL,
+#'   dm_path = model_path
+#'   )
+#'
+#' # Let's add dimensions from web_metrics
+#' # Again we imagine it is big
+#' flattable <- tempfile()
+#' arrow::write_dataset(web_metrics, flattable)
+#'
+#' web <- arrow::open_dataset(flattable)
+#'
+#' dimension_columns = list(
+#'   dim_channel = c("source", "medium", "campaign"),
+#'   dim_market = c("view_name", "country")
+#'   )
+#'
+#' dm <- dm_model(
+#'   flat_table = web,
+#'   dimension_columns = dimension_columns,
+#'   dm = dm,
+#'   dm_path = dm_path = model_path
+#'   )
+#'
+#' # Check the result
+#' list.files(model_path, recursive = TRUE)
+#'
+#' }
 dm_model <- function(flat_table,
                      dimension_columns,
                      dm = NULL,
